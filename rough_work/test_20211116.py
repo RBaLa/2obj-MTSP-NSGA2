@@ -168,6 +168,69 @@ def createInitialPopulation(N,n_cities,n_salespersons,ctype=1):
         if individual not in population:
             population.append(individual)
     return population
-  
+
+def partiallyMappedCrossover(p1,p2,ctype=1):
+    rng = np.random.default_rng(SEED)
+    updateSeed()
+    if ctype==1:
+        c_1,s_1 = p1.cities,p1.salespersons
+        c_2,s_2 = p2.cities,p2.salespersons
+        child_1 = Chromosome_1()
+        child_1.cities = np.zeros(shape=c_1.shape,dtype=int)
+        child_1.salespersons = np.zeros(shape=s_1.shape,dtype=int)
+        child_2 = Chromosome_1()
+        child_2.cities = np.zeros(shape=c_2.shape,dtype=int)
+        child_2.salespersons = np.empty(shape=s_2.shape,dtype=int)
+        cut_points = np.sort(rng.choice(c_1.shape[0],2,replace=False))
+        for i in range(cut_points[0],cut_points[1]):
+            child_2.cities[i] = c_1[i]
+            child_2.salespersons[i] = s_1[i]
+            child_1.cities[i] = c_2[i]
+            child_1.salespersons[i] = s_2[i]
+        for i in range(c_1.shape[0]):
+            if c_1[i] not in child_1.cities:
+                child_1.cities[i] = c_1[i]
+                child_1.salespersons[i] = s_1[i]
+            else:
+                child_1.cities[i] = rng.choice([j for j in range(1,c_1.shape[0]+1) if j not in child_1.cities])
+                if np.any(s_1) not in child_1.salespersons:
+                    child_1.salespersons[i] = (rng.choice(j) for j in s_1 if j not in child_1.salespersons)
+                else:
+                    child_1.salespersons[i] = rng.choice(np.arange(1,max(s_1)+1))
+            if c_2[i] not in child_2.cities:
+                child_2.cities[i] = c_2[i]
+                child_2.salespersons[i] = s_2[i]
+            else:
+                child_2.cities[i] = rng.choice([j for j in range(1,c_2.shape[0]+1) if j not in child_2.cities])
+                if np.any(s_2) not in child_2.salespersons:
+                    child_2.salespersons[i] = (rng.choice(j) for j in s_2 if j not in child_2.salespersons)
+                else:
+                    child_2.salespersons[i] = rng.choice(np.arange(1,max(s_2)+1))
+        
+    if ctype==2:
+        child_1 = Chromosome_2()
+        child_2 = Chromosome_2()
+        p11 = p1.part_1
+        p21 = p2.part_1
+        cut_points = np.sort(rng.choice(p11.shape[0],2,replace=False))
+        for i in range(cut_points[0],cut_points[1]):
+            child_2.part_1[i] = p11[i]
+            child_1.part_1[i] = p21[i]
+        for i in range(p11.shape[0]):
+            if p11[i] not in child_1.part_1:
+                child_1.part_1[i] = p11[i]
+            if p21[i] not in child_2.part_1:
+                child_2.part_1[i] = p21[i]
+        for i in range(p11.shape[0]):
+            if child_1.part_1[i] == 0:
+                child_1.part_1[i] = (rng.choice(j) for j in p11 if j not in child_1.part_1)
+            if child_2.part_1[i] == 0:
+                child_2.part_1[i] = (rng.choice(j) for j in p21 if j not in child_2.part_1)
+        child_1.part_2 = np.sort(rng.choice(np.arange(1,max(p11)),max(p12)-1,replace=False))
+        child_1.part_2 = np.sort(rng.choice(np.arange(1,max(p21)),max(p22)-1,replace=False))
+    
+    return (child_1,child_2)
+
+
 if __name__=="__main__":
     pass
