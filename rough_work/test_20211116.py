@@ -170,4 +170,4 @@ def createInitialPopulation(N,n_cities,n_salespersons,ctype=1):
     return population
   
 if __name__=="__main__":
-  pass
+    pass
