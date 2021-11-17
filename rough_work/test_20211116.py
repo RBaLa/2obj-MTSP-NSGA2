@@ -180,21 +180,21 @@ def partiallyMappedCrossover(p1,p2,ctype=1):
         child_1.salespersons = np.zeros(shape=s_1.shape,dtype=int)
         child_2 = Chromosome_1()
         child_2.cities = np.zeros(shape=c_2.shape,dtype=int)
-        child_2.salespersons = np.empty(shape=s_2.shape,dtype=int)
+        child_2.salespersons = np.zeros(shape=s_2.shape,dtype=int)
         cut_points = np.sort(rng.choice(c_1.shape[0],2,replace=False))
         for i in range(cut_points[0],cut_points[1]):
             child_2.cities[i] = c_1[i]
             child_2.salespersons[i] = s_1[i]
             child_1.cities[i] = c_2[i]
             child_1.salespersons[i] = s_2[i]
-        for i in range(c_1.shape[0]):
+        for i in np.concatenate((np.arange(cut_points[0]),np.arange(cut_points[1],c_1.shape[0]))):
             if c_1[i] not in child_1.cities:
                 child_1.cities[i] = c_1[i]
                 child_1.salespersons[i] = s_1[i]
             else:
                 child_1.cities[i] = rng.choice([j for j in range(1,c_1.shape[0]+1) if j not in child_1.cities])
-                if np.any(s_1) not in child_1.salespersons:
-                    child_1.salespersons[i] = (rng.choice(j) for j in s_1 if j not in child_1.salespersons)
+                if np.any(np.arange(1,max(s_1)+1)) not in child_1.salespersons:
+                    child_1.salespersons[i] = rng.choice([j for j in s_1 if j not in child_1.salespersons])
                 else:
                     child_1.salespersons[i] = rng.choice(np.arange(1,max(s_1)+1))
             if c_2[i] not in child_2.cities:
@@ -202,34 +202,149 @@ def partiallyMappedCrossover(p1,p2,ctype=1):
                 child_2.salespersons[i] = s_2[i]
             else:
                 child_2.cities[i] = rng.choice([j for j in range(1,c_2.shape[0]+1) if j not in child_2.cities])
-                if np.any(s_2) not in child_2.salespersons:
-                    child_2.salespersons[i] = (rng.choice(j) for j in s_2 if j not in child_2.salespersons)
+                if np.any(np.arange(1,max(s_2)+1)) not in child_2.salespersons:
+                    child_2.salespersons[i] = rng.choice([j for j in s_2 if j not in child_2.salespersons])
                 else:
                     child_2.salespersons[i] = rng.choice(np.arange(1,max(s_2)+1))
+                    
+    if ctype==2:
+        p11 = p1.part_1
+        p21 = p2.part_1
+        p12 = p1.part_2
+        p22 = p2.part_2
+        child_1 = Chromosome_2()
+        child_1.part_1 = np.zeros(shape=p11.shape,dtype=int)
+        child_1.part_2 = np.zeros(shape=p12.shape,dtype=int)
+        child_2 = Chromosome_2()
+        child_2.part_1 = np.zeros(shape=p21.shape,dtype=int)
+        child_2.part_2 = np.zeros(shape=p22.shape,dtype=int)
+        cut_points = np.sort(rng.choice(p11.shape[0],2,replace=False))
+        for i in range(cut_points[0],cut_points[1]):
+            child_2.part_1[i] = p11[i]
+            child_1.part_1[i] = p21[i]
+        for i in range(p11.shape[0]):
+            if p11[i] not in child_1.part_1 and child_1.part_1[i]==0:
+                child_1.part_1[i] = p11[i]
+            if p21[i] not in child_2.part_1 and child_2.part_1[i]==0:
+                child_2.part_1[i] = p21[i]
+        for i in range(p11.shape[0]):
+            if child_1.part_1[i] == 0:
+                child_1.part_1[i] = rng.choice([j for j in p11 if j not in child_1.part_1])
+            if child_2.part_1[i] == 0:
+                child_2.part_1[i] = rng.choice([j for j in p21 if j not in child_2.part_1])
+        child_1.part_2 = np.sort(rng.choice(np.arange(1,max(p11)),p12.shape[0],replace=False))
+        child_2.part_2 = np.sort(rng.choice(np.arange(1,max(p21)),p22.shape[0],replace=False))
+    
+        if child_1==p2 or child_2==p1 or child_1==p1 or child_2==p2:
+            child_1,child_2 = partiallyMappedCrossover(p1,p2,ctype)
+    
+    
+    return (child_1,child_2)
+
+def cyclicCrossover(p1,p2,ctype=1):
+    if ctype==1:
+        c_1,s_1 = p1.cities,p1.salespersons
+        c_2,s_2 = p2.cities,p2.salespersons
+        child_1 = Chromosome_1()
+        child_1.cities = np.zeros(shape=c_1.shape,dtype=int)
+        child_1.salespersons = np.zeros(shape=s_1.shape,dtype=int)
+        child_2 = Chromosome_1()
+        child_2.cities = np.zeros(shape=c_2.shape,dtype=int)
+        child_2.salespersons = np.zeros(shape=s_2.shape,dtype=int)
+        i = int(0)
+        count = 0
+        while True:
+            child_1.cities[i] = c_1[i]
+            child_1.salespersons[i] = s_1[i]
+            print("child 1 being written:",child_1.cities)
+            k = copy.deepcopy(i)
+            i = next(j for j in range(c_1.shape[0]) if c_2[k]==c_1[j])
+            count += 1
+            if count==c_1.shape[0]:
+                break
+            if c_2[k]==c_1[0]:
+                for j in range(c_1.shape[0]):
+                    if child_1.cities[j]==0:
+                        child_1.cities[j] = c_2[j]
+                        child_1.salespersons[j] = s_2[j]
+                break
+        i = int(0)
+        count = 0
+        while True:
+            child_2.cities[i] = c_2[i]
+            child_2.salespersons[i] = s_2[i]
+            print("child 2 being written:",child_2.cities)
+            k = copy.deepcopy(i)
+            i = next(j for j in range(c_2.shape[0]) if c_1[k]==c_2[j])
+            count += 1
+            if count==c_2.shape[0]:
+                break
+            if c_1[k]==c_2[0]:
+                for j in range(c_2.shape[0]):
+                    if child_2.cities[j]==0:
+                        child_2.cities[j] = c_1[j]
+                        child_2.salespersons[j] = s_1[j]
+                break
         
     if ctype==2:
         child_1 = Chromosome_2()
         child_2 = Chromosome_2()
         p11 = p1.part_1
         p21 = p2.part_1
-        cut_points = np.sort(rng.choice(p11.shape[0],2,replace=False))
-        for i in range(cut_points[0],cut_points[1]):
-            child_2.part_1[i] = p11[i]
-            child_1.part_1[i] = p21[i]
-        for i in range(p11.shape[0]):
-            if p11[i] not in child_1.part_1:
-                child_1.part_1[i] = p11[i]
-            if p21[i] not in child_2.part_1:
-                child_2.part_1[i] = p21[i]
-        for i in range(p11.shape[0]):
-            if child_1.part_1[i] == 0:
-                child_1.part_1[i] = (rng.choice(j) for j in p11 if j not in child_1.part_1)
-            if child_2.part_1[i] == 0:
-                child_2.part_1[i] = (rng.choice(j) for j in p21 if j not in child_2.part_1)
-        child_1.part_2 = np.sort(rng.choice(np.arange(1,max(p11)),max(p12)-1,replace=False))
-        child_1.part_2 = np.sort(rng.choice(np.arange(1,max(p21)),max(p22)-1,replace=False))
-    
+        
     return (child_1,child_2)
+
+def cyclicCrossover_2(p1,p2,ctype=1):
+    if ctype==1:
+        c_1,s_1 = p1.cities,p1.salespersons
+        c_2,s_2 = p2.cities,p2.salespersons
+        child_1 = Chromosome_1()
+        child_1.cities = np.zeros(shape=c_1.shape,dtype=int)
+        child_1.salespersons = np.zeros(shape=s_1.shape,dtype=int)
+        child_2 = Chromosome_1()
+        child_2.cities = np.zeros(shape=c_2.shape,dtype=int)
+        child_2.salespersons = np.zeros(shape=s_2.shape,dtype=int)
+        i = 0
+        j = 0
+        m = 0
+        count = 0
+        while True:
+            child_1.cities[m] = c_2[i]
+            child_1.salespersons[m] = s_2[i]
+            temp = next(k for k in range(c_1.shape[0]) if c_2[i]==c_1[k])
+            j = next(k for k in range(c_1.shape[0]) if c_2[temp]==c_1[k])
+            child_2.cities[m] = c_2[j]
+            child_2.salespersons[m] = s_2[j]
+            i = next(k for k in range(c_1.shape[0]) if c_2[j]==c_1[k])
+            m += 1
+            if c_1[0] in child_2.cities:
+                print(child_1.cities)
+                print(child_2.cities)
+                remnant_c1 = [c_1[p] for p in range(c_1.shape[0]) if c_1[p] not in child_1.cities]
+                remnant_s1 = [s_1[p] for p in range(c_1.shape[0]) if c_1[p] not in child_1.cities]
+                remnant_c2 = [c_2[p] for p in range(c_2.shape[0]) if c_2[p] not in child_2.cities]
+                remnant_s2 = [s_2[p] for p in range(c_2.shape[0]) if c_2[p] not in child_2.cities]
+                print(remnant_c1)
+                print(remnant_c2)
+                i = 0
+                j = 0
+                while True:
+                    child_1.cities[m] = remnant_c2[i]
+                    child_1.salespersons[m] = remnant_s2[i]
+                    print(m)
+                    temp = next(k for k in range(len(remnant_c1)) if remnant_c2[i]==remnant_c1[k])
+                    j = next(k for k in range(len(remnant_c1)) if remnant_c2[temp]==remnant_c1[k])
+                    child_2.cities[m] = remnant_c2[j]
+                    child_2.salespersons[m] = remnant_s2[j]
+                    i = next(k for k in range(len(remnant_c1)) if remnant_c2[j]==remnant_c1[k])
+                    m += 1
+                    if m==c_1.shape[0]:
+                        break
+            if m==c_1.shape[0]:
+                break
+    return (child_1,child_2)
+
+
 
 
 if __name__=="__main__":
