@@ -396,8 +396,6 @@ def insertMutation(child,ctype=1):
         point_2 = rng.choice(np.arange(point_1+1,c.shape[0]))
         mutated.cities = np.insert(mutated.cities,point_1+1,c[point_2])
         mutated.cities = np.delete(mutated.cities,point_2+1)
-        mutated.tours = np.insert(mutated.tours,point_1+1,c[point_2])
-        mutated.tours = np.delete(mutated.tours,point_2+1)
         
     if ctype==2:
         p1 = child.part_1
@@ -421,7 +419,8 @@ def swapMutation(child,ctype=1):
         mutated = Chromosome_1()
         mutated.cities = copy.deepcopy(c)
         mutated.tours = copy.deepcopy(s)
-        points = rng.choice(np.arange(c.shape[0]),2,replace=False)
+        diff_tour_pairs = [[i,j] for i in range(c.shape[0]) for j in range(c.shape[0]) if s[i]!=s[j]]
+        points = rng.choice(diff_tour_pairs)
         mutated.cities[points[0]],mutated.cities[points[1]] = mutated.cities[points[1]],mutated.cities[points[0]]
         mutated.tours[points[0]],mutated.tours[points[1]] = mutated.tours[points[1]],mutated.tours[points[0]]
         
@@ -447,10 +446,8 @@ def invertMutation(child,ctype=1):
         mutated.tours = copy.deepcopy(s)
         points = np.sort(rng.choice(np.arange(c.shape[0]),2,replace=False))
         inverse_c = [c[i] for i in range(points[1],points[0]-1,-1)]
-        inverse_s = [s[i] for i in range(points[1],points[0]-1,-1)]
         for i in range(points[0],points[1]+1):
             mutated.cities[i] = inverse_c[i]
-            mutated.tours[i] = inverse_s[i]
         
     if ctype==2:
         p1 = child.part_1
@@ -477,10 +474,8 @@ def scrambleMutation(child,ctype=1):
         points = np.sort(rng.choice(np.arange(c.shape[0]),2,replace=False))
         scramble_ids = rng.permutation(np.arange(points[0],points[1]+1))
         scrambled_c = [c[i] for i in scramble_ids]
-        scrambled_s = [s[i] for i in scramble_ids]
         for i in range(points[0],points[1]+1):
             mutated.cities[i] = scrambled_c[i]
-            mutated.tours[i] = scrambled_s[i]
         
     if ctype==2:
         p1 = child.part_1
