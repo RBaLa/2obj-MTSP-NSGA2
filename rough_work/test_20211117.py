@@ -173,39 +173,39 @@ def partiallyMappedCrossover(p1,p2,ctype=1):
     rng = np.random.default_rng(SEED)
     updateSeed()
     if ctype==1:
-        c_1,s_1 = p1.cities,p1.salespersons
-        c_2,s_2 = p2.cities,p2.salespersons
+        c_1,s_1 = p1.cities,p1.tours
+        c_2,s_2 = p2.cities,p2.tours
         child_1 = Chromosome_1()
         child_1.cities = np.zeros(shape=c_1.shape,dtype=int)
-        child_1.salespersons = np.zeros(shape=s_1.shape,dtype=int)
+        child_1.tours = np.zeros(shape=s_1.shape,dtype=int)
         child_2 = Chromosome_1()
         child_2.cities = np.zeros(shape=c_2.shape,dtype=int)
-        child_2.salespersons = np.zeros(shape=s_2.shape,dtype=int)
+        child_2.tours = np.zeros(shape=s_2.shape,dtype=int)
         cut_points = np.sort(rng.choice(c_1.shape[0],2,replace=False))
         for i in range(cut_points[0],cut_points[1]):
             child_2.cities[i] = c_1[i]
-            child_2.salespersons[i] = s_1[i]
+            child_2.tours[i] = s_1[i]
             child_1.cities[i] = c_2[i]
-            child_1.salespersons[i] = s_2[i]
+            child_1.tours[i] = s_2[i]
         for i in np.concatenate((np.arange(cut_points[0]),np.arange(cut_points[1],c_1.shape[0]))):
             if c_1[i] not in child_1.cities:
                 child_1.cities[i] = c_1[i]
-                child_1.salespersons[i] = s_1[i]
+                child_1.tours[i] = s_1[i]
             else:
                 child_1.cities[i] = rng.choice([j for j in range(1,c_1.shape[0]+1) if j not in child_1.cities])
-                if np.any(np.arange(1,max(s_1)+1)) not in child_1.salespersons:
-                    child_1.salespersons[i] = rng.choice([j for j in s_1 if j not in child_1.salespersons])
+                if np.any(np.arange(1,max(s_1)+1)) not in child_1.tours:
+                    child_1.tours[i] = rng.choice([j for j in s_1 if j not in child_1.tours])
                 else:
-                    child_1.salespersons[i] = rng.choice(np.arange(1,max(s_1)+1))
+                    child_1.tours[i] = rng.choice(np.arange(1,max(s_1)+1))
             if c_2[i] not in child_2.cities:
                 child_2.cities[i] = c_2[i]
-                child_2.salespersons[i] = s_2[i]
+                child_2.tours[i] = s_2[i]
             else:
                 child_2.cities[i] = rng.choice([j for j in range(1,c_2.shape[0]+1) if j not in child_2.cities])
-                if np.any(np.arange(1,max(s_2)+1)) not in child_2.salespersons:
-                    child_2.salespersons[i] = rng.choice([j for j in s_2 if j not in child_2.salespersons])
+                if np.any(np.arange(1,max(s_2)+1)) not in child_2.tours:
+                    child_2.tours[i] = rng.choice([j for j in s_2 if j not in child_2.tours])
                 else:
-                    child_2.salespersons[i] = rng.choice(np.arange(1,max(s_2)+1))
+                    child_2.tours[i] = rng.choice(np.arange(1,max(s_2)+1))
         if np.all(child_1.cities==c_1) or np.all(child_2.cities==c_2) or np.all(child_1.cities==c_2) or np.all(child_2.cities==c_1):
             child_1,child_2 = partiallyMappedCrossover(p1,p2,ctype)
                     
@@ -282,17 +282,17 @@ def getCxChild2(a,c,child_a,start_id):
         
 def cyclicCrossover(p1,p2,ctype=1):
     if ctype==1:
-        c_1,s_1 = p1.cities,p1.salespersons
-        c_2,s_2 = p2.cities,p2.salespersons
+        c_1,s_1 = p1.cities,p1.tours
+        c_2,s_2 = p2.cities,p2.tours
         child_1 = Chromosome_1()
         child_1.cities = np.empty(shape=c_1.shape,dtype=int)
-        child_1.salespersons = np.empty(shape=s_1.shape,dtype=int)
+        child_1.tours = np.empty(shape=s_1.shape,dtype=int)
         child_2 = Chromosome_1()
         child_2.cities = np.empty(shape=c_2.shape,dtype=int)
-        child_2.salespersons = np.empty(shape=s_2.shape,dtype=int)
+        child_2.tours = np.empty(shape=s_2.shape,dtype=int)
         start_id = 0
-        child_1.cities,child_1.salespersons = getCxChild1(c_1,s_1,c_2,s_2,child_1.cities,child_1.salespersons,start_id)
-        child_2.cities,child_2.salespersons = getCxChild1(c_2,s_2,c_1,s_1,child_2.cities,child_2.salespersons,start_id)
+        child_1.cities,child_1.tours = getCxChild1(c_1,s_1,c_2,s_2,child_1.cities,child_1.tours,start_id)
+        child_2.cities,child_2.tours = getCxChild1(c_2,s_2,c_1,s_1,child_2.cities,child_2.tours,start_id)
         
     if ctype==2:
         rng = np.random.default_rng(SEED)
@@ -315,25 +315,25 @@ def cyclicCrossover(p1,p2,ctype=1):
         
     return (child_1,child_2)
 
-def orderedCrossoverVar1(p1,p2,ctype=1):
+def orderedCrossover(p1,p2,ctype=1):
     rng = np.random.default_rng(SEED)
     updateSeed()
     if ctype==1:
-        c_1,s_1 = p1.cities,p1.salespersons
-        c_2,s_2 = p2.cities,p2.salespersons
+        c_1,s_1 = p1.cities,p1.tours
+        c_2,s_2 = p2.cities,p2.tours
         child_1 = Chromosome_1()
         child_1.cities = np.zeros(shape=c_1.shape,dtype=int)
-        child_1.salespersons = np.zeros(shape=s_1.shape,dtype=int)
+        child_1.tours = np.zeros(shape=s_1.shape,dtype=int)
         child_2 = Chromosome_1()
         child_2.cities = np.zeros(shape=c_2.shape,dtype=int)
-        child_2.salespersons = np.zeros(shape=s_2.shape,dtype=int)
+        child_2.tours = np.zeros(shape=s_2.shape,dtype=int)
         cut_points = np.sort(rng.choice(c_1.shape[0],2,replace=False))
         print("cut points:", cut_points)
         for i in range(cut_points[0],cut_points[1]):
             child_1.cities[i] = c_1[i]
-            child_1.salespersons[i] = s_1[i]
+            child_1.tours[i] = s_1[i]
             child_2.cities[i] = c_2[i]
-            child_2.salespersons[i] = s_2[i]
+            child_2.tours[i] = s_2[i]
         remnant_ids = np.concatenate((np.arange(cut_points[1],c_1.shape[0]),np.arange(cut_points[0])))
         cut_ids = np.concatenate((np.arange(cut_points[1],c_1.shape[0]),np.arange(cut_points[1])))
         rearr_c1 = [c_1[i] for i in cut_ids]
@@ -348,8 +348,8 @@ def orderedCrossoverVar1(p1,p2,ctype=1):
         for i in remnant_ids:
             child_2.cities[i] = rem_c1[j]
             child_1.cities[i] = rem_c2[j]
-            child_2.salespersons[i] = rem_s1[j]
-            child_1.salespersons[i] = rem_s2[j]
+            child_2.tours[i] = rem_s1[j]
+            child_1.tours[i] = rem_s2[j]
             j += 1
         
     if ctype==2:
@@ -382,5 +382,120 @@ def orderedCrossoverVar1(p1,p2,ctype=1):
         child_2.part_2 = np.sort(rng.choice(np.arange(1,max(p21)),p22.shape[0],replace=False))
         
     return(child_1,child_2)
+
+def insertMutation(child,ctype=1):
+    rng = np.random.default_rng(SEED)
+    updateSeed()
+    if ctype==1:
+        c = child.cities
+        s = child.tours
+        mutated = Chromosome_1()
+        mutated.cities = copy.deepcopy(c)
+        mutated.tours = copy.deepcopy(s)
+        point_1 = rng.choice(np.arange(c.shape[0]-1))
+        point_2 = rng.choice(np.arange(point_1+1,c.shape[0]))
+        mutated.cities = np.insert(mutated.cities,point_1+1,c[point_2])
+        mutated.cities = np.delete(mutated.cities,point_2+1)
+        mutated.tours = np.insert(mutated.tours,point_1+1,c[point_2])
+        mutated.tours = np.delete(mutated.tours,point_2+1)
+        
+    if ctype==2:
+        p1 = child.part_1
+        p2 = child.part_2
+        mutated = Chromosome_2()
+        mutated.part_1 = copy.deepcopy(p1)
+        mutated.part_2 = np.sort(rng.choice(np.arange(1,max(p1)),p2.shape[0],replace=False))
+        point_1 = rng.choice(np.arange(p1.shape[0]-1))
+        point_2 = rng.choice(np.arange(point_1+1,p1.shape[0]))
+        mutated.part_1 = np.insert(mutated.part_1,point_1+1,c[point_2])
+        mutated.part_1 = np.delete(mutated.part_1,point_2+1)
+    
+    return mutated
+
+def swapMutation(child,ctype=1):
+    rng = np.random.default_rng(SEED)
+    updateSeed()
+    if ctype==1:
+        c = child.cities
+        s = child.tours
+        mutated = Chromosome_1()
+        mutated.cities = copy.deepcopy(c)
+        mutated.tours = copy.deepcopy(s)
+        points = rng.choice(np.arange(c.shape[0]),2,replace=False)
+        mutated.cities[points[0]],mutated.cities[points[1]] = mutated.cities[points[1]],mutated.cities[points[0]]
+        mutated.tours[points[0]],mutated.tours[points[1]] = mutated.tours[points[1]],mutated.tours[points[0]]
+        
+    if ctype==2:
+        p1 = child.part_1
+        p2 = child.part_2
+        mutated = Chromosome_2()
+        mutated.part_1 = copy.deepcopy(p1)
+        mutated.part_2 = np.sort(rng.choice(np.arange(1,max(p1)),p2.shape[0],replace=False))
+        points = rng.choice(np.arange(p1.shape[0]),2,replace=False)
+        mutated.part_1[points[0]],mutated.part_1[points[1]] = mutated.part_1[points[1]],mutated.part_1[points[0]]
+    
+    return mutated
+
+def invertMutation(child,ctype=1):
+    rng = np.random.default_rng(SEED)
+    updateSeed()
+    if ctype==1:
+        c = child.cities
+        s = child.tours
+        mutated = Chromosome_1()
+        mutated.cities = copy.deepcopy(c)
+        mutated.tours = copy.deepcopy(s)
+        points = np.sort(rng.choice(np.arange(c.shape[0]),2,replace=False))
+        inverse_c = [c[i] for i in range(points[1],points[0]-1,-1)]
+        inverse_s = [s[i] for i in range(points[1],points[0]-1,-1)]
+        for i in range(points[0],points[1]+1):
+            mutated.cities[i] = inverse_c[i]
+            mutated.tours[i] = inverse_s[i]
+        
+    if ctype==2:
+        p1 = child.part_1
+        p2 = child.part_2
+        mutated = Chromosome_2()
+        mutated.part_1 = copy.deepcopy(p1)
+        mutated.part_2 = np.sort(rng.choice(np.arange(1,max(p1)),p2.shape[0],replace=False))
+        points = np.sort(rng.choice(np.arange(p1.shape[0]),2,replace=False))
+        inverse_p1 = [p1[i] for i in range(points[1],points[0]-1,-1)]
+        for i in range(points[0],points[1]+1):
+            mutated.part_1[i] = inverse_p1[i]
+    
+    return mutated
+
+def scrambleMutation(child,ctype=1):
+    rng = np.random.default_rng(SEED)
+    updateSeed()
+    if ctype==1:
+        c = child.cities
+        s = child.tours
+        mutated = Chromosome_1()
+        mutated.cities = copy.deepcopy(c)
+        mutated.tours = copy.deepcopy(s)
+        points = np.sort(rng.choice(np.arange(c.shape[0]),2,replace=False))
+        scramble_ids = rng.permutation(np.arange(points[0],points[1]+1))
+        scrambled_c = [c[i] for i in scramble_ids]
+        scrambled_s = [s[i] for i in scramble_ids]
+        for i in range(points[0],points[1]+1):
+            mutated.cities[i] = scrambled_c[i]
+            mutated.tours[i] = scrambled_s[i]
+        
+    if ctype==2:
+        p1 = child.part_1
+        p2 = child.part_2
+        mutated = Chromosome_2()
+        mutated.part_1 = copy.deepcopy(p1)
+        mutated.part_2 = np.sort(rng.choice(np.arange(1,max(p1)),p2.shape[0],replace=False))
+        points = np.sort(rng.choice(np.arange(p1.shape[0]),2,replace=False))
+        scramble_ids = rng.permutation(np.arange(points[0],points[1]+1))
+        scrambled_p1 = [p1[i] for i in scramble_ids]
+        for i in range(points[0],points[1]+1):
+            mutated.part_1[i] = scrambled_p1[i]
+    
+    return mutated
+
+
 
 
