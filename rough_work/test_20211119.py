@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import math
 import copy
 import functools
 
@@ -15,8 +14,6 @@ def updateSeed():
         SEED += large;
 
 def objectiveFunction1(C,X):
-    n_tours = X.shape[0]
-    n_cities = C.shape[0]
     total_distance = 0
     
     for i,tour in enumerate(X):
@@ -27,7 +24,6 @@ def objectiveFunction1(C,X):
 
 def objectiveFunction2(C,X,ftype='td'):
     n_tours = X.shape[0]
-    n_cities = C.shape[0]
     tour_lengths = np.empty(shape=(n_tours,),dtype=float)
     total_distance = 0
     avg_tour_length = 0
@@ -223,8 +219,8 @@ def partiallyMappedCrossover(p1,p2,ctype=1):
                     child_2.tours[i] = rng.choice([j for j in s_2 if j not in child_2.tours])
                 else:
                     child_2.tours[i] = rng.choice(np.arange(1,max(s_2)+1))
-        if np.all(child_1.cities==c_1) or np.all(child_2.cities==c_2) or np.all(child_1.cities==c_2) or np.all(child_2.cities==c_1):
-            child_1,child_2 = partiallyMappedCrossover(p1,p2,ctype)
+        #if np.all(child_1.cities==c_1) or np.all(child_2.cities==c_2) or np.all(child_1.cities==c_2) or np.all(child_2.cities==c_1):
+        #    child_1,child_2 = partiallyMappedCrossover(p1,p2,ctype)
                     
     if ctype==2:
         p11 = p1.part_1
@@ -428,6 +424,9 @@ def swapMutation(child,ctype=1):
         mutated.cities = copy.deepcopy(c)
         mutated.tours = copy.deepcopy(s)
         diff_tour_pairs = [[i,j] for i in range(c.shape[0]) for j in range(c.shape[0]) if s[i]!=s[j]]
+        if diff_tour_pairs == []:
+            mutated = child
+            return mutated
         points = rng.choice(diff_tour_pairs)
         mutated.cities[points[0]],mutated.cities[points[1]] = mutated.cities[points[1]],mutated.cities[points[0]]
         mutated.tours[points[0]],mutated.tours[points[1]] = mutated.tours[points[1]],mutated.tours[points[0]]
@@ -469,7 +468,7 @@ def invertMutation(child,ctype=1):
         inverse_p1 = [p1[i] for i in range(points[1],points[0]-1,-1)]
         j = 0
         for i in range(points[1],points[0]-1,-1):
-            mutated.part_1[i] = inverse_c[j]
+            mutated.part_1[i] = inverse_p1[j]
             j += 1
     
     return mutated
@@ -551,7 +550,6 @@ def crowdedComparisonOperator(i,j):
 def tournamentSelection(population,tsub,selection_probability,ctype=1):
     rng = np.random.default_rng(SEED)
     updateSeed()
-    tournament_brackets = []
     parents = []
     probability_list = [selection_probability]
     best = None
@@ -640,7 +638,7 @@ def assignCrowdingDistance(list_of_individuals):
     return list_I
   
 def main():
-    n_iters = 100
+    n_iters = 250
     n_cities = 21
     n_tours = 3
     map_size = 500
@@ -660,14 +658,19 @@ def main():
     population = createInitialPopulation(pop_size,C,n_tours,ctype)
     print("...Done\n")
     extra_front = []
-    best_individuals = []
+    first_front = []
     print(">>>Entering Main Loop:\n")
+    fig = plt.figure()
+    plt.xlabel("Total Distance")
+    plt.ylabel("Average Tour Distance")
+    plt.ion()
+    plt.show()
     for iter_count in range(n_iters):
         print("------Iteration no.->",iter_count+1,"------\n")
-        print("            Doing non-dominated sort...")
+        print("   Doing non-dominated sort...")
         fronts = nondominatedSort(population,ctype)
-        print("            ...Done.")
-        print("            Getting P(t+1)...")
+        print("   ...Done.")
+        print("   Getting P(t+1)...")
         next_generation_P = []
         i = 0
         while True:
@@ -682,28 +685,33 @@ def main():
             if len(extra_front)>1:
                 extra_front = sorted(extra_front,key=functools.cmp_to_key(crowdedComparisonOperator))
             next_generation_P.extend(extra_front[0:pop_size-P_temp_length])
-        print("            ...Done.")
-        print("            Creating Offspring...")
+        print("   ...Done.")
+        print("   Creating Offspring...")
         next_generation_Q = createOffspringPopulation(next_generation_P,C,tsub,selection_probability,
                                                       cx_type,mutation_probability,ctype)
-        print("            ...Done.")
+        print("   ...Done.")
         population = next_generation_P
-        for individual in population:
-            if individual.nondomination == 1:
-                best_individuals.append(individual)
         population.extend(next_generation_Q)
-    best_sorted_fronts = nondominatedSort(best_individuals,ctype)
-    best_sorted_individuals = assignCrowdingDistance([individual for front in best_sorted_fronts for individual in front])
-    best_sorted_individuals.sort(key=functools.cmp_to_key(crowdedComparisonOperator))
-    best_5 = best_sorted_individuals[:5]
+        first_front = fronts[0]
+        fvalues = [(i.function_vals[0],i.function_vals[1]) for i in first_front]
+        X = [-i[0] for i in fvalues]
+        Y = [-i[1] for i in fvalues]
+        plt.clf()
+        plt.scatter(X,Y)
+        fig.canvas.draw()
+        plt.pause(0.0001)
     print(">>>Exited Main Loop")
-    print("Best 5 solutions to the problem:\n")
-    for i in range(5):
-        print(best_sorted_individuals[i].cities,best_sorted_individuals[i].tours)
-        print("total distance of all tours:",best_sorted_individuals[i].function_vals[0])
-        print("average tour distance:",best_sorted_individuals[i].function_vals[1],"\n\n")
-    return best_5
+    return first_front
         
 if __name__=="__main__":
-    best = []
-    best = main()
+    best_front = []
+    best_front = main()
+    print("Best solution front after all iterations in figure\n")
+    fvalues = [(i.function_vals[0],i.function_vals[1]) for i in best_front]
+    X = [-i[0] for i in fvalues]
+    Y = [-i[1] for i in fvalues]
+    plt.figure()
+    plt.xlabel("Total Distance")
+    plt.ylabel("Average Tour Distance")
+    plt.scatter(X,Y)
+    plt.show()
