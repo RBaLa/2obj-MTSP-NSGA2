@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import copy
 import functools
+import tqdm
 
 SEED = 123456789
 
@@ -65,7 +66,8 @@ def getTourMatrix(chromosome,ctype=1):
         tour_matrix = np.zeros(shape=(n_tours,n_cities+1,n_cities+1),dtype=int)
         tour_order_lists = [[] for i in range(n_tours)]
         for i in range(n_cities):
-            tour_order_lists[chromosome.tours[i]-1].append(chromosome.cities[i])
+            tour_order_lists[chromosome.tours[i]-1].append(
+                chromosome.cities[i])
         
     if ctype==2:
         part_1 = chromosome.part_1
@@ -104,7 +106,8 @@ class Chromosome_1(object):
         self.function_vals = None
     def __eq__(self,other):
         if isinstance(self,other.__class__):
-            return ((np.all(self.tours==other.tours)) and (np.all(self.cities==other.cities)))
+            return ((np.all(self.tours==other.tours)) and 
+                    (np.all(self.cities==other.cities)))
         return False
 
 class Chromosome_2(object):
@@ -118,7 +121,8 @@ class Chromosome_2(object):
         self.function_vals = None
     def __eq__(self,other):
         if isinstance(self,other.__class__):
-            return ((np.all(self.part_1==other.part_1)) and (np.all(self.part_2==other.part_2)))
+            return ((np.all(self.part_1==other.part_1)) and 
+                    (np.all(self.part_2==other.part_2)))
         return False
       
 def createChromosome(C,n_tours,ctype=1):
@@ -144,7 +148,8 @@ def createChromosome(C,n_tours,ctype=1):
     if ctype==2:
         chromosome = Chromosome_2()
         chromosome.part_1 = rng.permutation(np.arange(1,n_cities))
-        chromosome.part_2 = np.sort(rng.choice(np.arange(1,n_cities-1),n_tours-1,replace=False))
+        chromosome.part_2 = np.sort(rng.choice(np.arange(1,n_cities-1),
+                                               n_tours-1,replace=False))
         X = getTourMatrix(chromosome,ctype)
         a = objectiveFunction1(C,X)
         b = objectiveFunction2(C,X)
@@ -204,21 +209,28 @@ def partiallyMappedCrossover(p1,p2,ctype=1):
         for i in range(cut_points[0],cut_points[1]):
             child_2.cities[i],child_2.tours[i] = c_1[i],s_1[i]
             child_1.cities[i],child_1.tours[i] = c_2[i],s_2[i]
-        for i in np.concatenate((np.arange(cut_points[0]),np.arange(cut_points[1],c_1.shape[0]))):
+        for i in np.concatenate((np.arange(cut_points[0]),
+                                 np.arange(cut_points[1],c_1.shape[0]))):
             if c_1[i] not in child_1.cities:
                 child_1.cities[i],child_1.tours[i] = c_1[i],s_1[i]
             else:
-                child_1.cities[i] = rng.choice([j for j in range(1,c_1.shape[0]+1) if j not in child_1.cities])
+                child_1.cities[i] = rng.choice([j for j in 
+                                                range(1,c_1.shape[0]+1) 
+                                                if j not in child_1.cities])
                 if np.any(np.arange(1,max(s_1)+1)) not in child_1.tours:
-                    child_1.tours[i] = rng.choice([j for j in s_1 if j not in child_1.tours])
+                    child_1.tours[i] = rng.choice([j for j in s_1 
+                                                   if j not in child_1.tours])
                 else:
                     child_1.tours[i] = rng.choice(np.arange(1,max(s_1)+1))
             if c_2[i] not in child_2.cities:
                 child_2.cities[i],child_2.tours[i] = c_2[i],s_2[i]
             else:
-                child_2.cities[i] = rng.choice([j for j in range(1,c_2.shape[0]+1) if j not in child_2.cities])
+                child_2.cities[i] = rng.choice([j for j in 
+                                                range(1,c_2.shape[0]+1) 
+                                                if j not in child_2.cities])
                 if np.any(np.arange(1,max(s_2)+1)) not in child_2.tours:
-                    child_2.tours[i] = rng.choice([j for j in s_2 if j not in child_2.tours])
+                    child_2.tours[i] = rng.choice([j for j in s_2 if j 
+                                                   not in child_2.tours])
                 else:
                     child_2.tours[i] = rng.choice(np.arange(1,max(s_2)+1))
                     
@@ -243,11 +255,15 @@ def partiallyMappedCrossover(p1,p2,ctype=1):
                 child_2.part_1[i] = p21[i]
         for i in range(p11.shape[0]):
             if child_1.part_1[i] == 0:
-                child_1.part_1[i] = rng.choice([j for j in p11 if j not in child_1.part_1])
+                child_1.part_1[i] = rng.choice([j for j in p11 if j 
+                                                not in child_1.part_1])
             if child_2.part_1[i] == 0:
-                child_2.part_1[i] = rng.choice([j for j in p21 if j not in child_2.part_1])
-        child_1.part_2 = np.sort(rng.choice(np.arange(1,max(p11)),p12.shape[0],replace=False))
-        child_2.part_2 = np.sort(rng.choice(np.arange(1,max(p21)),p22.shape[0],replace=False))
+                child_2.part_1[i] = rng.choice([j for j in p21 if j 
+                                                not in child_2.part_1])
+        child_1.part_2 = np.sort(rng.choice(np.arange(1,max(p11)),p12.shape[0],
+                                            replace=False))
+        child_2.part_2 = np.sort(rng.choice(np.arange(1,max(p21)),p22.shape[0],
+                                            replace=False))
     
     
     return (child_1,child_2)
@@ -298,8 +314,12 @@ def cyclicCrossover(p1,p2,ctype=1):
         child_2.cities = np.empty(shape=c_2.shape,dtype=int)
         child_2.tours = np.empty(shape=s_2.shape,dtype=int)
         start_id = 0
-        child_1.cities,child_1.tours = getCxChild1(c_1,s_1,c_2,s_2,child_1.cities,child_1.tours,start_id)
-        child_2.cities,child_2.tours = getCxChild1(c_2,s_2,c_1,s_1,child_2.cities,child_2.tours,start_id)
+        child_1.cities,child_1.tours = getCxChild1(c_1,s_1,c_2,s_2,
+                                                   child_1.cities,
+                                                   child_1.tours,start_id)
+        child_2.cities,child_2.tours = getCxChild1(c_2,s_2,c_1,s_1,
+                                                   child_2.cities,
+                                                   child_2.tours,start_id)
         
     if ctype==2:
         rng = np.random.default_rng(SEED)
@@ -317,8 +337,10 @@ def cyclicCrossover(p1,p2,ctype=1):
         start_id = 0
         child_1.part_1 = getCxChild2(p11,p21,child_1.part_1,start_id)
         child_2.part_1 = getCxChild2(p21,p11,child_2.part_1,start_id)
-        child_1.part_2 = np.sort(rng.choice(np.arange(1,max(p11)),p12.shape[0],replace=False))
-        child_2.part_2 = np.sort(rng.choice(np.arange(1,max(p21)),p22.shape[0],replace=False))
+        child_1.part_2 = np.sort(rng.choice(np.arange(1,max(p11)),p12.shape[0],
+                                            replace=False))
+        child_2.part_2 = np.sort(rng.choice(np.arange(1,max(p21)),p22.shape[0],
+                                            replace=False))
         
     return (child_1,child_2)
   
@@ -338,16 +360,20 @@ def orderedCrossover(p1,p2,ctype=1):
         for i in range(cut_points[0],cut_points[1]):
             child_1.cities[i],child_1.tours[i] = c_1[i],s_1[i]
             child_2.cities[i],child_2.tours[i] = c_2[i],s_2[i]
-        remnant_ids = np.concatenate((np.arange(cut_points[1],c_1.shape[0]),np.arange(cut_points[0])))
-        cut_ids = np.concatenate((np.arange(cut_points[1],c_1.shape[0]),np.arange(cut_points[1])))
+        remnant_ids = np.concatenate((np.arange(cut_points[1],c_1.shape[0]),
+                                      np.arange(cut_points[0])))
+        cut_ids = np.concatenate((np.arange(cut_points[1],c_1.shape[0]),
+                                  np.arange(cut_points[1])))
         rearr_c1 = [c_1[i] for i in cut_ids]
         rearr_s1 = [s_1[i] for i in cut_ids]
         rearr_c2 = [c_2[i] for i in cut_ids]
         rearr_s2 = [s_2[i] for i in cut_ids]
         rem_c1 = [i for i in rearr_c1 if i not in child_2.cities]
         rem_c2 = [i for i in rearr_c2 if i not in child_1.cities]
-        rem_s1 = [rearr_s1[i] for i in range(len(rearr_s1)) if rearr_c1[i] not in child_2.cities]
-        rem_s2 = [rearr_s2[i] for i in range(len(rearr_s2)) if rearr_c2[i] not in child_1.cities]
+        rem_s1 = [rearr_s1[i] for i in range(len(rearr_s1)) if rearr_c1[i] 
+                  not in child_2.cities]
+        rem_s2 = [rearr_s2[i] for i in range(len(rearr_s2)) if rearr_c2[i] 
+                  not in child_1.cities]
         j = 0
         for i in remnant_ids:
             child_2.cities[i],child_1.cities[i] = rem_c1[j],rem_c2[j]
@@ -368,8 +394,10 @@ def orderedCrossover(p1,p2,ctype=1):
         cut_points = np.sort(rng.choice(p11.shape[0],2,replace=False))
         for i in range(cut_points[0],cut_points[1]):
             child_1.part_1[i],child_2.part_1[i] = p11[i],p21[i]
-        remnant_ids = np.concatenate((np.arange(cut_points[1],p11.shape[0]),np.arange(cut_points[0])))
-        cut_ids = np.concatenate((np.arange(cut_points[1],p11.shape[0]),np.arange(cut_points[1])))
+        remnant_ids = np.concatenate((np.arange(cut_points[1],p11.shape[0]),
+                                      np.arange(cut_points[0])))
+        cut_ids = np.concatenate((np.arange(cut_points[1],p11.shape[0]),
+                                  np.arange(cut_points[1])))
         rearr_p11 = [p11[i] for i in cut_ids]
         rearr_p21 = [p21[i] for i in cut_ids]
         rem_p11 = [i for i in rearr_p11 if i not in child_2.part_1]
@@ -378,8 +406,10 @@ def orderedCrossover(p1,p2,ctype=1):
         for i in remnant_ids:
             child_2.part_1[i],child_1.part_1[i] = rem_p11[j],rem_p21[j]
             j += 1
-        child_1.part_2 = np.sort(rng.choice(np.arange(1,max(p11)),p12.shape[0],replace=False))
-        child_2.part_2 = np.sort(rng.choice(np.arange(1,max(p21)),p22.shape[0],replace=False))
+        child_1.part_2 = np.sort(rng.choice(np.arange(1,max(p11)),p12.shape[0],
+                                            replace=False))
+        child_2.part_2 = np.sort(rng.choice(np.arange(1,max(p21)),p22.shape[0],
+                                            replace=False))
         
     return(child_1,child_2)
 
@@ -472,7 +502,8 @@ def heirarchicalCrossover(p1,p2,C):
         child_1.part_2 = copy.deepcopy(p1.part_2)
     else:
         child_1.part_2 = copy.deepcopy(p2.part_2)
-    child_2.part_2 = np.sort(rng.choice(np.arange(1,max(p2.part_1)),p2.part_2.shape[0],replace=False))
+    child_2.part_2 = np.sort(rng.choice(np.arange(1,max(p2.part_1)),
+                                        p2.part_2.shape[0],replace=False))
     return child_1,child_2
 
 def insertMutation(child,ctype=1):
@@ -494,7 +525,8 @@ def insertMutation(child,ctype=1):
         p2 = child.part_2
         mutated = Chromosome_2()
         mutated.part_1 = copy.deepcopy(p1)
-        mutated.part_2 = np.sort(rng.choice(np.arange(1,max(p1)),p2.shape[0],replace=False))
+        mutated.part_2 = np.sort(rng.choice(np.arange(1,max(p1)),
+                                            p2.shape[0],replace=False))
         point_1 = rng.choice(np.arange(p1.shape[0]-1))
         point_2 = rng.choice(np.arange(point_1+1,p1.shape[0]))
         mutated.part_1 = np.insert(mutated.part_1,point_1+1,p1[point_2])
@@ -511,22 +543,27 @@ def swapMutation(child,ctype=1):
         mutated = Chromosome_1()
         mutated.cities = copy.deepcopy(c)
         mutated.tours = copy.deepcopy(s)
-        diff_tour_pairs = [[i,j] for i in range(c.shape[0]) for j in range(c.shape[0]) if s[i]!=s[j]]
+        diff_tour_pairs = [[i,j] for i in range(c.shape[0]) 
+                           for j in range(c.shape[0]) if s[i]!=s[j]]
         if diff_tour_pairs == []:
             mutated = child
             return mutated
         points = rng.choice(diff_tour_pairs)
-        mutated.cities[points[0]],mutated.cities[points[1]] = mutated.cities[points[1]],mutated.cities[points[0]]
-        mutated.tours[points[0]],mutated.tours[points[1]] = mutated.tours[points[1]],mutated.tours[points[0]]
+        mutated.cities[points[0]],mutated.cities[points[1]] = mutated.cities[
+            points[1]],mutated.cities[points[0]]
+        mutated.tours[points[0]],mutated.tours[points[1]] = mutated.tours[
+            points[1]],mutated.tours[points[0]]
         
     if ctype==2:
         p1 = child.part_1
         p2 = child.part_2
         mutated = Chromosome_2()
         mutated.part_1 = copy.deepcopy(p1)
-        mutated.part_2 = np.sort(rng.choice(np.arange(1,max(p1)),p2.shape[0],replace=False))
+        mutated.part_2 = np.sort(rng.choice(np.arange(1,max(p1)),p2.shape[0],
+                                            replace=False))
         points = rng.choice(np.arange(p1.shape[0]),2,replace=False)
-        mutated.part_1[points[0]],mutated.part_1[points[1]] = mutated.part_1[points[1]],mutated.part_1[points[0]]
+        mutated.part_1[points[0]],mutated.part_1[points[1]] = mutated.part_1[
+            points[1]],mutated.part_1[points[0]]
     
     return mutated
   
@@ -551,7 +588,8 @@ def invertMutation(child,ctype=1):
         p2 = child.part_2
         mutated = Chromosome_2()
         mutated.part_1 = copy.deepcopy(p1)
-        mutated.part_2 = np.sort(rng.choice(np.arange(1,max(p1)),p2.shape[0],replace=False))
+        mutated.part_2 = np.sort(rng.choice(np.arange(1,max(p1)),p2.shape[0],
+                                            replace=False))
         points = np.sort(rng.choice(np.arange(p1.shape[0]),2,replace=False))
         inverse_p1 = [p1[i] for i in range(points[1],points[0]-1,-1)]
         j = 0
@@ -581,7 +619,8 @@ def scrambleMutation(child,ctype=1):
         p2 = child.part_2
         mutated = Chromosome_2()
         mutated.part_1 = copy.deepcopy(p1)
-        mutated.part_2 = np.sort(rng.choice(np.arange(1,max(p1)),p2.shape[0],replace=False))
+        mutated.part_2 = np.sort(rng.choice(np.arange(1,max(p1)),p2.shape[0],
+                                            replace=False))
         points = np.sort(rng.choice(np.arange(p1.shape[0]),2,replace=False))
         scramble_ids = rng.permutation(np.arange(points[0],points[1]+1))
         scrambled_p1 = [p1[i] for i in scramble_ids]
@@ -592,8 +631,10 @@ def scrambleMutation(child,ctype=1):
   
 def dominates(individual,other,ctype=1):
     value = False
-    if (individual.function_vals[0]>other.function_vals[0]) or (individual.function_vals[1]>other.function_vals[1]):
-        if (individual.function_vals[0]>=other.function_vals[0]) and (individual.function_vals[1]>=other.function_vals[1]):
+    if (individual.function_vals[0]>other.function_vals[0]) or (
+            individual.function_vals[1]>other.function_vals[1]):
+        if (individual.function_vals[0]>=other.function_vals[0]) and (
+                individual.function_vals[1]>=other.function_vals[1]):
             value = True
     return value
   
@@ -624,9 +665,11 @@ def nondominatedSort(population,ctype):
     return nondominated_fronts
   
 def crowdedComparisonOperator(i,j):
-    if i.nondomination<j.nondomination or (i.nondomination==j.nondomination and i.crowding_distance>j.crowding_distance):
+    if i.nondomination<j.nondomination or (i.nondomination==j.nondomination 
+                                and i.crowding_distance>j.crowding_distance):
         return -1
-    elif j.nondomination<i.nondomination or (i.nondomination==j.nondomination and j.crowding_distance>i.crowding_distance):
+    elif j.nondomination<i.nondomination or (i.nondomination==j.nondomination 
+                                and j.crowding_distance>i.crowding_distance):
         return 1
     else:
         return 0
@@ -638,13 +681,17 @@ def tournamentSelection(population,tsub,selection_probability,ctype=1):
     probability_list = [selection_probability]
     best = None
     for i in range(1,tsub):
-        probability_list.append(selection_probability*(1-selection_probability)**i)
+        probability_list.append(selection_probability*
+                                (1-selection_probability)**i)
     while len(parents)<len(population):
         tournament_bracket = rng.choice(population,tsub,replace=False).tolist()
-        tournament_bracket = sorted(tournament_bracket,key=functools.cmp_to_key(crowdedComparisonOperator))
+        tournament_bracket = sorted(tournament_bracket,
+                                    key=functools.cmp_to_key(
+                                        crowdedComparisonOperator))
         for i in range(tsub):
             best = tournament_bracket[tsub-1]
-            if rng.choice([0,1],p=[probability_list[i],1-probability_list[i]])==0:
+            if rng.choice([0,1],
+                          p=[probability_list[i],1-probability_list[i]])==0:
                 if parents==[] or parents[-1]!=tournament_bracket[i]:
                     best = tournament_bracket[i]
                     break
@@ -664,7 +711,9 @@ def tournamentSelection2(pop,tsub=2,ctype=1):
     farthest = None
     while len(parents)<len(population):
         tournament_bracket = rng.choice(population,tsub,replace=False).tolist()
-        tournament_bracket = sorted(tournament_bracket,key=functools.cmp_to_key(crowdedComparisonOperator))
+        tournament_bracket = sorted(tournament_bracket,
+                                    key=functools.cmp_to_key(
+                                        crowdedComparisonOperator))
         parents.append(tournament_bracket[0])
         d_list = [fDistance(ind,tournament_bracket[0]) for ind in population]
         sorted_ids = np.argsort(d_list)
@@ -674,7 +723,8 @@ def tournamentSelection2(pop,tsub=2,ctype=1):
         population.remove(farthest)
     return parents
 
-def createOffspringPopulation(population,dist_matrix,tsub=2,selection_prob=0.9,cxtype='pmx',mu_prob=0.05,ctype=1):
+def createOffspringPopulation(population,dist_matrix,tsub=2,selection_prob=0.9,
+                              cxtype='pmx',mu_prob=0.05,ctype=1):
     rng = np.random.default_rng(SEED)
     updateSeed()
     children = []
@@ -682,7 +732,8 @@ def createOffspringPopulation(population,dist_matrix,tsub=2,selection_prob=0.9,c
     child2 = None
     parents = tournamentSelection(population,tsub,selection_prob,ctype)
     #parents = tournamentSelection2(population,tsub,ctype)
-    mating_pairs = [(parents[i],parents[i+1]) for i in range(len(parents)) if i%2==0]
+    mating_pairs = [(parents[i],parents[i+1]) 
+                    for i in range(len(parents)) if i%2==0]
     for pair in mating_pairs:
         if cxtype=='pmx':
             child1,child2 = partiallyMappedCrossover(pair[0],pair[1],ctype)
@@ -695,7 +746,7 @@ def createOffspringPopulation(population,dist_matrix,tsub=2,selection_prob=0.9,c
         
         if rng.choice([0,1],p=[mu_prob,1-mu_prob])==0:
             child1 = mutate_child(child1,ctype)
-        #if rng.choice([0,1],p=[mu_prob,1-mu_prob])==0:
+        if rng.choice([0,1],p=[mu_prob,1-mu_prob])==0:
             child2 = mutate_child(child2,ctype)
         X = getTourMatrix(child1,ctype)
         a = objectiveFunction1(dist_matrix,X)
@@ -739,7 +790,8 @@ def assignCrowdingDistance(list_of_individuals):
         list_I[-1].crowding_distance = 10**9
         for j in range(1,l-1):
             list_I[j].crowding_distance += (list_I[j+1].function_vals[i]-
-                                                      list_I[j-1].function_vals[i])/(fmax-fmin)
+                                            list_I[j-1].function_vals[i])/(
+                                                fmax-fmin)
     return list_I
 
 def readInstance(filename):
@@ -748,7 +800,8 @@ def readInstance(filename):
         for line in f.readlines():
             int_list = [int(float(i)) for i in line.split()]
             city_coordinates.append((int_list[1],int_list[2]))
-    distance_matrix = np.empty(shape=(len(city_coordinates),len(city_coordinates)),dtype=int)
+    distance_matrix = np.empty(shape=(len(city_coordinates),
+                                      len(city_coordinates)),dtype=int)
     for i,city_i in enumerate(city_coordinates):
         for j,city_j in enumerate(city_coordinates):
             distance_matrix[i,j] = round(euclideanDistance(city_i,city_j))
@@ -766,33 +819,41 @@ def main():
     n_iters = 250
     n_cities = 51
     n_tours = 7
-    #map_size = 500
+    map_size = 500
     ctype = 2
     pop_size = 100
     tsub = 2
     selection_probability = 1
     cx_type = 'hx'
     mutation_probability = 0.05
-    print("***Multi-Objective Problem: MOmTSP with",n_cities,"cities and",n_tours,"salespersons***")
-    print("Algorithm: NSGA_II. Crossover type>",cx_type,";Mutation Probability>",mutation_probability,"n(iterations)>",n_iters,".")
-    print("\n-------- PROGRAM START ---------\n")
-    #print("Generating Instance...")
-    #C = generateInstance(n_cities,map_size)
-    print("Reading instance from file...")
-    C = readInstance('eil51.txt')
-    print("...Done\n")
+    instance_type = 'from file'
+    instance_file_name = 'eil51.txt'
+    
+    print("\n--------------- PROGRAM START ---------------\n")
+    print("*** Multi-Objective Problem: MOmTSP with",n_cities,"cities and",
+          n_tours,"salespersons ***\n",
+          "                    *** Solving Algorithm: NSGA_II *** ")
+    if instance_type=='random':
+        print("Generating Instance...")
+        C = generateInstance(n_cities,map_size)
+    else:
+        print("Reading instance from file:",instance_file_name,"...")
+        C = readInstance(instance_file_name)
     print("Creating initial population...")
     population = createInitialPopulation(pop_size,C,n_tours,ctype)
-    print("...Done\n")
     extra_front = []
     first_front = []
+    exp_no = 0
+    alg_type = 'original'
+    print("Experiment no.",exp_no,"")
+    print("Parameters: \nCrossover type->",cx_type,
+          "; Mutation Probability->",mutation_probability,
+          "; n(iterations)->",n_iters)
+    print("Population size->",pop_size,"; original/modified->",alg_type)
+    
     print(">>>Entering Main Loop:\n")
-    for iter_count in range(n_iters):
-        print("------Iteration no.->",iter_count+1,"------\n")
-        print("   Doing non-dominated sort...")
+    for iter_count in tqdm.tqdm(range(n_iters)):
         fronts = nondominatedSort(population,ctype)
-        print("   ...Done.")
-        print("   Getting P(t+1)...")
         next_generation_P = []
         i = 0
         while True:
@@ -805,22 +866,22 @@ def main():
             P_temp_length = len(next_generation_P)
             extra_front = assignCrowdingDistance(fronts[i])
             if len(extra_front)>1:
-                extra_front = sorted(extra_front,key=functools.cmp_to_key(crowdedComparisonOperator))
+                extra_front = sorted(extra_front,
+                                     key=functools.cmp_to_key(
+                                         crowdedComparisonOperator))
             next_generation_P.extend(extra_front[0:pop_size-P_temp_length])
-        print("   ...Done.")
-        print("   Creating Offspring Q(t+1)...")
-        next_generation_Q = createOffspringPopulation(next_generation_P,C,tsub,selection_probability,
-                                                      cx_type,mutation_probability,ctype)
-        print("   ...Done.")
-        print("   Getting R(t+1) = P(t+1) U Q(t+1)...")
+        next_generation_Q = createOffspringPopulation(next_generation_P,C,
+                                                      tsub,
+                                                      selection_probability,
+                                                      cx_type,
+                                                      mutation_probability,
+                                                      ctype)
         population = next_generation_P
         population.extend(next_generation_Q)
-        print("   ...Done.\n")
         #plt.clf()
         first_front = fronts[0]
-        second_front = fronts[1]
-        third_front = fronts[2]
-        #fvalues = [(i.function_vals[0],i.function_vals[1]) for i in first_front]
+        #fvalues = [(i.function_vals[0],i.function_vals[1]) 
+        #           for i in first_front]
         #X = [-i[0] for i in fvalues]
         #Y = [-i[1] for i in fvalues]
         #plt.figure()
@@ -828,25 +889,19 @@ def main():
         #plt.ylabel("Average Tour Distance")
         #plt.scatter(X,Y)
         #plt.show()
-    print(">>>Exited Main Loop")
-    return first_front,second_front,third_front
+    print("\n>>>Finished Main Loop")
+    return first_front
         
 if __name__=="__main__":
-    best_front,niban,sanban = main()
-    print("Best solution front after all iterations in figure\n")
+    best_front = main()
+    print("Best solution front after all iterations in figure.\n")
     fvalues1 = [(i.function_vals[0],i.function_vals[1]) for i in best_front]
-    fvalues2 = [(i.function_vals[0],i.function_vals[1]) for i in niban]
-    fvalues3 = [(i.function_vals[0],i.function_vals[1]) for i in sanban]
     X = [-i[0] for i in fvalues1]
     Y = [-i[1] for i in fvalues1]
     plt.figure()
     plt.xlabel("Total Distance")
     plt.ylabel("Average Tour Distance")
     plt.scatter(X,Y,c='b')
-    X = [-i[0] for i in fvalues2]
-    Y = [-i[1] for i in fvalues2]
-    plt.scatter(X,Y,c='r')
-    X = [-i[0] for i in fvalues3]
-    Y = [-i[1] for i in fvalues3]
-    plt.scatter(X,Y,c='k')
     plt.show()
+    print("--------------- PROGRAM END ---------------")
+        
