@@ -1,5 +1,5 @@
 # Multi-objective optimization of the Multiple Traveling Salesmen Problem Using a Non-dominated Sorting Genetic Algorithm (NSGA-II)
-## (Deliverable for the ECE 750 Artificial Life: Biology and Computation Fall 2021 course @ UWaterloo)
+Deliverable for the ECE 750 Artificial Life: Biology and Computation Fall 2021 course @ UWaterloo
 ### Author: Rahul Balamurugan
 
 The NSGA-II algorithm is implemented faithful to the original as far as the non-dominated sorting, crowding distance operator, and binary crowded tournament selection go. However, the crossover and mutation operators are those meant for permutation based problems.
