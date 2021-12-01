@@ -10,7 +10,7 @@ Implemented mutation operators: Insert mutation, Swap mutation, Invert mutation,
 
 Available instances from TSPLIB: eil51, berlin52, eil76, and rat99
 
-Instructions to run:
+### Instructions to run:
 1. Download entire repo
 2. Unzip and open main.py in an editor (if you want to change parameters)
 3. Inside main.py, change variables as desired in function main()
