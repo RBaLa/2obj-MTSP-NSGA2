@@ -10,18 +10,18 @@ def createInitialPopulation(N,C,data,n_tours,ctype=1):
     population = []
     while len(population)<N:
         individual = chrom.createChromosome(C,n_tours,ctype)
-        #individual = chrom.createChromosomeFromTspSolution(C,data,n_tours)
         if individual not in population:
             population.append(individual)
         
     return population
   
-  def tournamentSelection(population,tsub,selection_probability,ctype=1):
+  def tournamentSelection(population,selection_probability,ctype=1):
     rng = np.random.default_rng(seed.SEED)
     utils.updateSeed()
     parents = []
     probability_list = [selection_probability]
     best = None
+    tsub = 2
     for i in range(1,tsub):
         probability_list.append(selection_probability*
                                 (1-selection_probability)**i)
@@ -40,40 +40,14 @@ def createInitialPopulation(N,C,data,n_tours,ctype=1):
         parents.append(best)
     return parents
 
-def fDistance(a,b):
-    fval_a = a.function_vals
-    fval_b = b.function_vals
-    return utils.euclideanDistance(fval_a, fval_b)
-
-def tournamentSelection2(pop,tsub=2,ctype=1):
-    population = copy.deepcopy(pop)
-    rng = np.random.default_rng(seed.SEED)
-    utils.updateSeed()
-    parents = []
-    farthest = None
-    while len(parents)<len(population):
-        tournament_bracket = rng.choice(population,tsub,replace=False).tolist()
-        tournament_bracket = sorted(tournament_bracket,
-                                    key=functools.cmp_to_key(
-                                        nsga2.crowdedComparisonOperator))
-        parents.append(tournament_bracket[0])
-        d_list = [fDistance(ind,tournament_bracket[0]) for ind in population]
-        sorted_ids = np.argsort(d_list)
-        farthest = population[sorted_ids[-1]]
-        parents.append(farthest)
-        population.remove(tournament_bracket[0])
-        population.remove(farthest)
-    return parents
-
-def createOffspringPopulation(population,dist_matrix,tsub=2,selection_prob=0.9,
+def createOffspringPopulation(population,dist_matrix,selection_prob=0.9,
                               cxtype='pmx',mu_prob=0.05,ctype=1):
     rng = np.random.default_rng(seed.SEED)
     utils.updateSeed()
     children = []
     child1 = None
     child2 = None
-    parents = tournamentSelection(population,tsub,selection_prob,ctype)
-    #parents = tournamentSelection2(population,tsub,ctype)
+    parents = tournamentSelection(population,selection_prob,ctype)
     mating_pairs = [(parents[i],parents[i+1]) 
                     for i in range(len(parents)) if i%2==0]
     for pair in mating_pairs:
@@ -102,3 +76,34 @@ def createOffspringPopulation(population,dist_matrix,tsub=2,selection_prob=0.9,
         children.append(child1)
         children.append(child2)
     return children
+
+def evolve(n_iters,population,C,selection_probability,cx_type,mutation_probability,ctype):
+    extra_front = []
+    fronts = []
+    print("   >>>Entering Main Loop:\n")
+    for iter_count in tqdm.tqdm(range(n_iters)):
+        fronts = nondominatedSort(population,ctype)
+        next_generation_P = []
+        i = 0
+        while True:
+            if len(next_generation_P)+len(fronts[i])>=pop_size:
+                break
+            crowding_assigned_front = assignCrowdingDistance(fronts[i])
+            next_generation_P.extend(crowding_assigned_front)
+            i += 1
+        if len(next_generation_P)<pop_size:
+            P_temp_length = len(next_generation_P)
+            extra_front = assignCrowdingDistance(fronts[i])
+            if len(extra_front)>1:
+                extra_front = sorted(extra_front,
+                                     key=functools.cmp_to_key(
+                                         crowdedComparisonOperator))
+            next_generation_P.extend(extra_front[0:pop_size-P_temp_length])
+        next_generation_Q = createOffspringPopulation(next_generation_P,C,
+                                                      selection_probability,
+                                                      cx_type,
+                                                      mutation_probability,
+                                                      ctype)
+        population = next_generation_P
+        population.extend(next_generation_Q)
+    return fronts
