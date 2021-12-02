@@ -1,9 +1,10 @@
   import numpy as np
   import utils
   import chromosome as chrom
+  import seed
   
   def partiallyMappedCrossover(p1,p2,ctype=1):
-    rng = np.random.default_rng(SEED)
+    rng = np.random.default_rng(seed.SEED)
     utils.updateSeed()
     if ctype==1:
         c_1,s_1 = p1.cities,p1.tours
@@ -131,7 +132,7 @@ def cyclicCrossover(p1,p2,ctype=1):
                                                    child_2.tours,start_id)
         
     if ctype==2:
-        rng = np.random.default_rng(SEED)
+        rng = np.random.default_rng(seed.SEED)
         utils.updateSeed()
         p11 = p1.part_1
         p21 = p2.part_1
@@ -154,7 +155,7 @@ def cyclicCrossover(p1,p2,ctype=1):
     return (child_1,child_2)
   
 def orderedCrossover(p1,p2,ctype=1):
-    rng = np.random.default_rng(SEED)
+    rng = np.random.default_rng(seed.SEED)
     utils.updateSeed()
     if ctype==1:
         c_1,s_1 = p1.cities,p1.tours
@@ -249,7 +250,7 @@ def rationalizeHgaResult(org_result):
     return new_result
 
 def heirarchicalCrossover(p1,p2,C):
-    rng = np.random.default_rng(SEED)
+    rng = np.random.default_rng(seed.SEED)
     updateSeed()
     child_1 = chrom.Chromosome_2()
     child_2 = chrom.Chromosome_2()
@@ -316,7 +317,7 @@ def heirarchicalCrossover(p1,p2,C):
     return child_1,child_2
 
 def insertMutation(child,ctype=1):
-    rng = np.random.default_rng(SEED)
+    rng = np.random.default_rng(seed.SEED)
     utils.updateSeed()
     if ctype==1:
         c = child.cities
@@ -344,7 +345,7 @@ def insertMutation(child,ctype=1):
     return mutated
   
 def swapMutation(child,ctype=1):
-    rng = np.random.default_rng(SEED)
+    rng = np.random.default_rng(seed.SEED)
     utils.updateSeed()
     if ctype==1:
         c = child.cities
@@ -377,7 +378,7 @@ def swapMutation(child,ctype=1):
     return mutated
   
 def invertMutation(child,ctype=1):
-    rng = np.random.default_rng(SEED)
+    rng = np.random.default_rng(seed.SEED)
     utils.updateSeed()
     if ctype==1:
         c = child.cities
@@ -409,7 +410,7 @@ def invertMutation(child,ctype=1):
     return mutated
   
 def scrambleMutation(child,ctype=1):
-    rng = np.random.default_rng(SEED)
+    rng = np.random.default_rng(seed.SEED)
     utils.updateSeed()
     if ctype==1:
         c = child.cities
@@ -439,7 +440,7 @@ def scrambleMutation(child,ctype=1):
     return mutated
   
 def mutate_child(child,ctype):
-    rng = np.random.default_rng(SEED)
+    rng = np.random.default_rng(seed.SEED)
     utils.updateSeed()
     mutated = None
     mu_type = rng.choice([0,1,2,3])
