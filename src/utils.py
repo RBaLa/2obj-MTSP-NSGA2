@@ -1,13 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import seed
 
 def updateSeed():
-    global SEED
     large = 2147483647;
-    k = int(SEED/127773);
-    SEED = 16807*(SEED-k*127773)-k*2836;
-    if SEED<=0:
-        SEED += large;
+    k = int(seed.SEED/127773);
+    seed.SEED = 16807*(seed.SEED-k*127773)-k*2836;
+    if seed.SEED<=0:
+        seed.SEED += large;
 
 def getTourMatrix(chromosome,ctype=1):
     if ctype==1:
@@ -49,7 +49,7 @@ def getTourMatrix(chromosome,ctype=1):
     return ((p1[0]-p2[0])**2+(p1[1]-p2[1])**2)**0.5
   
 def generateInstance(n_cities,map_size):
-    rng = np.random.default_rng(SEED)
+    rng = np.random.default_rng(seed.SEED)
     updateSeed()
     city_coordinates = [(0,0)] #initialized with depot
     distance_matrix = np.empty(shape=(n_cities,n_cities),dtype=float)
