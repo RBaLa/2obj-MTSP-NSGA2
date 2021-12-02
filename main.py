@@ -1,6 +1,9 @@
 from src import utils
 from src import evolution
-from src import 
+import os
+import matplotlib.pyplot as plt
+import pickle
+
 def main():
     #VARIABLES:
     #-------------------------------------------------------------------------------------------------------
@@ -34,10 +37,10 @@ def main():
     
     if instance_type=='random':
         print("Generating Instance...")
-        C = generateInstance(n_cities,map_size)
+        C,data = utils.generateInstance(n_cities,map_size)
     else:
         print("Reading instance from file:",instance_file,"...")
-        C,data = readInstance(instance_file)
+        C,data = utils.readInstance(instance_file)
         
     print("PARAMETERS: \nCrossover type->",cx_type,
                   "; Mutation Probability->",mutation_probability,
@@ -45,7 +48,7 @@ def main():
     print("Population size->",pop_size)
     print("\nCreating initial population...\n")
     
-    population = createInitialPopulation(population_size,C,data,number_of_tours,ctype)
+    population = evolution.createInitialPopulation(population_size,C,data,number_of_tours,ctype)
     
     fronts = evolution.evolve(number_of_iterations,population,C,selection_probability,
                               crossover_type,mutation_probability,chromosome_type)
@@ -65,9 +68,13 @@ def main():
                                                     crossover_type,
                                                     mutation_probability,
                                                     instance_file[:-4]))
-        
-    
-    
+        with open("Results/data/ctype_{!r}_xtype_{!r}_mu_{!r}_instance_{!r}".format(
+                                                    ctype,
+                                                    cx_type,
+                                                    mutation_probability,
+                                                    instance_file_name[:-4]),
+                                                        "wb") as wrfile:
+            pickle.dump(front_dict,wrfile)
     return 0
         
 if __name__=="__main__":
