@@ -68,11 +68,11 @@ def main():
                                                     crossover_type,
                                                     mutation_probability,
                                                     instance_file[:-4]))
-        with open("Results/data/ctype_{!r}_xtype_{!r}_mu_{!r}_instance_{!r}".format(
-                                                    ctype,
-                                                    cx_type,
+        with open("Results/data/ctyp_{!r}_xtyp_{!r}_mu_{!r}_instnc_{!r}".format(
+                                                    chromosome_type,
+                                                    crossover_type,
                                                     mutation_probability,
-                                                    instance_file_name[:-4]),
+                                                    instance_file[:-4]),
                                                         "wb") as wrfile:
             pickle.dump(front_dict,wrfile)
     return 0
