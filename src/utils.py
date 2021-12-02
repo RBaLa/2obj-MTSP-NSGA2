@@ -1,8 +1,5 @@
-
-
-
-
-SEED = 123456789
+import numpy as np
+import matplotlib.pyplot as plt
 
 def updateSeed():
     global SEED
