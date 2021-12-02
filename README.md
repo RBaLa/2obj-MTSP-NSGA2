@@ -13,7 +13,7 @@ Two objective functions  for the MTSP: minimizing total distance traveled and tw
 Available instances from TSPLIB: eil51, berlin52, eil76, and rat99.
 
 ### Instructions to run:
-1. Download entire repo
+1. Download code as zipped file.
 2. Unzip and open main.py in an editor (if you want to change parameters)
 3. Inside main.py, change variables as desired in function main()
 4. Run main.py and select instance when prompted ('random' for random instance generation)
