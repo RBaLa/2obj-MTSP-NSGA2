@@ -1,3 +1,5 @@
+imort numpy as np
+
 def objectiveFunction1(C,X):
     total_distance = 0
     for i,tour in enumerate(X):
