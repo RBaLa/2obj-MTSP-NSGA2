@@ -33,8 +33,7 @@ class Chromosome_2(object):
         return False
       
 def createChromosome(C,n_tours,ctype=1):
-    global SEED
-    rng = np.random.default_rng(SEED)
+    rng = np.random.default_rng(seed.SEED)
     utils.updateSeed()
     n_cities = C.shape[0]
     if ctype==1:
