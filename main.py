@@ -38,18 +38,32 @@ def main():
         print("Reading instance from file:",instance_file,"...")
         C,data = readInstance(instance_file)
         
-    front_dict = dict()
-    plt.figure()
-    
     print("PARAMETERS: \nCrossover type->",cx_type,
                   "; Mutation Probability->",mutation_probability,
                   "; n(iterations)->",n_iters)
     print("Population size->",pop_size)
     print("\nCreating initial population...\n")
+    
     population = createInitialPopulation(population_size,C,data,number_of_tours,ctype)
-    extra_front = []
-    first_front = []
-    for iter_count in tqdm.tqdm(range(number_of_iterations)):
+    
+    fronts = evolution.evolve(number_of_iterations,population,C,selection_probability,
+                              crossover_type,mutation_probability,chromosome_type)
+    first_front = fronts[0]
+    fvalues = [(i.function_vals[0],i.function_vals[1]) for i in first_front]
+    X = [-i[0] for i in fvalues]
+    Y = [-i[1] for i in fvalues]
+    plt.figure()
+    plt.xlabel("Total Distance")
+    plt.ylabel("Max-Min Tour Distance")
+    plt.scatter(X,Y)
+    plt.show()
+    
+    if save_fd=='y':
+        plt.savefig(results_dir_2+"ctyp_{!r}_xtyp_{!r}_mu_{!r}_instnc_{!r}".format(
+                                                    chromosome_type,
+                                                    crossover_type,
+                                                    mutation_probability,
+                                                    instance_file[:-4]))
         
     
     
