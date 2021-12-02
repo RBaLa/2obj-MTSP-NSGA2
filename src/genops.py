@@ -1,13 +1,17 @@
+  import numpy as np
+  import utils
+  import chromosome as chrom
+  
   def partiallyMappedCrossover(p1,p2,ctype=1):
     rng = np.random.default_rng(SEED)
-    updateSeed()
+    utils.updateSeed()
     if ctype==1:
         c_1,s_1 = p1.cities,p1.tours
         c_2,s_2 = p2.cities,p2.tours
-        child_1 = Chromosome_1()
+        child_1 = chrom.Chromosome_1()
         child_1.cities = np.zeros(shape=c_1.shape,dtype=int)
         child_1.tours = np.zeros(shape=s_1.shape,dtype=int)
-        child_2 = Chromosome_1()
+        child_2 = chrom.Chromosome_1()
         child_2.cities = np.zeros(shape=c_2.shape,dtype=int)
         child_2.tours = np.zeros(shape=s_2.shape,dtype=int)
         cut_points = np.sort(rng.choice(c_1.shape[0],2,replace=False))
@@ -44,10 +48,10 @@
         p21 = p2.part_1
         p12 = p1.part_2
         p22 = p2.part_2
-        child_1 = Chromosome_2()
+        child_1 = chrom.Chromosome_2()
         child_1.part_1 = np.zeros(shape=p11.shape,dtype=int)
         child_1.part_2 = np.zeros(shape=p12.shape,dtype=int)
-        child_2 = Chromosome_2()
+        child_2 = chrom.Chromosome_2()
         child_2.part_1 = np.zeros(shape=p21.shape,dtype=int)
         child_2.part_2 = np.zeros(shape=p22.shape,dtype=int)
         cut_points = np.sort(rng.choice(p11.shape[0],2,replace=False))
@@ -112,10 +116,10 @@ def cyclicCrossover(p1,p2,ctype=1):
     if ctype==1:
         c_1,s_1 = p1.cities,p1.tours
         c_2,s_2 = p2.cities,p2.tours
-        child_1 = Chromosome_1()
+        child_1 = chrom.Chromosome_1()
         child_1.cities = np.empty(shape=c_1.shape,dtype=int)
         child_1.tours = np.empty(shape=s_1.shape,dtype=int)
-        child_2 = Chromosome_1()
+        child_2 = chrom.Chromosome_1()
         child_2.cities = np.empty(shape=c_2.shape,dtype=int)
         child_2.tours = np.empty(shape=s_2.shape,dtype=int)
         start_id = 0
@@ -128,15 +132,15 @@ def cyclicCrossover(p1,p2,ctype=1):
         
     if ctype==2:
         rng = np.random.default_rng(SEED)
-        updateSeed()
+        utils.updateSeed()
         p11 = p1.part_1
         p21 = p2.part_1
         p12 = p1.part_2
         p22 = p2.part_2
-        child_1 = Chromosome_2()
+        child_1 = chrom.Chromosome_2()
         child_1.part_1 = np.empty(shape=p11.shape,dtype=int)
         child_1.part_2 = np.empty(shape=p12.shape,dtype=int)
-        child_2 = Chromosome_2()
+        child_2 = cjrom.Chromosome_2()
         child_2.part_1 = np.empty(shape=p21.shape,dtype=int)
         child_2.part_2 = np.empty(shape=p22.shape,dtype=int)
         start_id = 0
@@ -151,14 +155,14 @@ def cyclicCrossover(p1,p2,ctype=1):
   
 def orderedCrossover(p1,p2,ctype=1):
     rng = np.random.default_rng(SEED)
-    updateSeed()
+    utils.updateSeed()
     if ctype==1:
         c_1,s_1 = p1.cities,p1.tours
         c_2,s_2 = p2.cities,p2.tours
-        child_1 = Chromosome_1()
+        child_1 = chrom.Chromosome_1()
         child_1.cities = np.zeros(shape=c_1.shape,dtype=int)
         child_1.tours = np.zeros(shape=s_1.shape,dtype=int)
-        child_2 = Chromosome_1()
+        child_2 = chrom.Chromosome_1()
         child_2.cities = np.zeros(shape=c_2.shape,dtype=int)
         child_2.tours = np.zeros(shape=s_2.shape,dtype=int)
         cut_points = np.sort(rng.choice(c_1.shape[0],2,replace=False))
@@ -190,10 +194,10 @@ def orderedCrossover(p1,p2,ctype=1):
         p21 = p2.part_1
         p12 = p1.part_2
         p22 = p2.part_2
-        child_1 = Chromosome_2()
+        child_1 = chrom.Chromosome_2()
         child_1.part_1 = np.zeros(shape=p11.shape,dtype=int)
         child_1.part_2 = np.zeros(shape=p12.shape,dtype=int)
-        child_2 = Chromosome_2()
+        child_2 = chrom.Chromosome_2()
         child_2.part_1 = np.zeros(shape=p21.shape,dtype=int)
         child_2.part_2 = np.zeros(shape=p22.shape,dtype=int)
         cut_points = np.sort(rng.choice(p11.shape[0],2,replace=False))
@@ -247,8 +251,8 @@ def rationalizeHgaResult(org_result):
 def heirarchicalCrossover(p1,p2,C):
     rng = np.random.default_rng(SEED)
     updateSeed()
-    child_1 = Chromosome_2()
-    child_2 = Chromosome_2()
+    child_1 = chrom.Chromosome_2()
+    child_2 = chrom.Chromosome_2()
     p11 = p1.part_1.tolist()
     p21 = p2.part_1.tolist()
     dp1 = decodeChromosome2(p1)
@@ -313,11 +317,11 @@ def heirarchicalCrossover(p1,p2,C):
 
 def insertMutation(child,ctype=1):
     rng = np.random.default_rng(SEED)
-    updateSeed()
+    utils.updateSeed()
     if ctype==1:
         c = child.cities
         s = child.tours
-        mutated = Chromosome_1()
+        mutated = chrom.Chromosome_1()
         mutated.cities = copy.deepcopy(c)
         mutated.tours = copy.deepcopy(s)
         point_1 = rng.choice(np.arange(c.shape[0]-1))
@@ -328,7 +332,7 @@ def insertMutation(child,ctype=1):
     if ctype==2:
         p1 = child.part_1
         p2 = child.part_2
-        mutated = Chromosome_2()
+        mutated = chrom.Chromosome_2()
         mutated.part_1 = copy.deepcopy(p1)
         mutated.part_2 = np.sort(rng.choice(np.arange(1,max(p1)),
                                             p2.shape[0],replace=False))
@@ -341,11 +345,11 @@ def insertMutation(child,ctype=1):
   
 def swapMutation(child,ctype=1):
     rng = np.random.default_rng(SEED)
-    updateSeed()
+    utils.updateSeed()
     if ctype==1:
         c = child.cities
         s = child.tours
-        mutated = Chromosome_1()
+        mutated = chrom.Chromosome_1()
         mutated.cities = copy.deepcopy(c)
         mutated.tours = copy.deepcopy(s)
         diff_tour_pairs = [[i,j] for i in range(c.shape[0]) 
@@ -362,7 +366,7 @@ def swapMutation(child,ctype=1):
     if ctype==2:
         p1 = child.part_1
         p2 = child.part_2
-        mutated = Chromosome_2()
+        mutated = chrom.Chromosome_2()
         mutated.part_1 = copy.deepcopy(p1)
         mutated.part_2 = np.sort(rng.choice(np.arange(1,max(p1)),p2.shape[0],
                                             replace=False))
@@ -374,11 +378,11 @@ def swapMutation(child,ctype=1):
   
 def invertMutation(child,ctype=1):
     rng = np.random.default_rng(SEED)
-    updateSeed()
+    utils.updateSeed()
     if ctype==1:
         c = child.cities
         s = child.tours
-        mutated = Chromosome_1()
+        mutated = chrom.Chromosome_1()
         mutated.cities = copy.deepcopy(c)
         mutated.tours = copy.deepcopy(s)
         points = np.sort(rng.choice(np.arange(c.shape[0]),2,replace=False))
@@ -391,7 +395,7 @@ def invertMutation(child,ctype=1):
     if ctype==2:
         p1 = child.part_1
         p2 = child.part_2
-        mutated = Chromosome_2()
+        mutated = chrom.Chromosome_2()
         mutated.part_1 = copy.deepcopy(p1)
         mutated.part_2 = np.sort(rng.choice(np.arange(1,max(p1)),p2.shape[0],
                                             replace=False))
@@ -406,11 +410,11 @@ def invertMutation(child,ctype=1):
   
 def scrambleMutation(child,ctype=1):
     rng = np.random.default_rng(SEED)
-    updateSeed()
+    utils.updateSeed()
     if ctype==1:
         c = child.cities
         s = child.tours
-        mutated = Chromosome_1()
+        mutated = chrom.Chromosome_1()
         mutated.cities = copy.deepcopy(c)
         mutated.tours = copy.deepcopy(s)
         points = np.sort(rng.choice(np.arange(c.shape[0]),2,replace=False))
@@ -422,7 +426,7 @@ def scrambleMutation(child,ctype=1):
     if ctype==2:
         p1 = child.part_1
         p2 = child.part_2
-        mutated = Chromosome_2()
+        mutated = chrom.Chromosome_2()
         mutated.part_1 = copy.deepcopy(p1)
         mutated.part_2 = np.sort(rng.choice(np.arange(1,max(p1)),p2.shape[0],
                                             replace=False))
@@ -432,4 +436,19 @@ def scrambleMutation(child,ctype=1):
         for i,scrambled_id in enumerate(scramble_ids):
             mutated.part_1[scrambled_id] = scrambled_p1[i]
     
+    return mutated
+  
+def mutate_child(child,ctype):
+    rng = np.random.default_rng(SEED)
+    utils.updateSeed()
+    mutated = None
+    mu_type = rng.choice([0,1,2,3])
+    if mu_type==0:
+        mutated = insertMutation(child,ctype)
+    elif mu_type==1:
+        mutated = swapMutation(child,ctype)
+    elif mu_type==2:
+        mutated = invertMutation(child,ctype)
+    else:
+        mutated = scrambleMutation(child,ctype)
     return mutated
