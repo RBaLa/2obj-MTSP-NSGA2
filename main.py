@@ -37,18 +37,18 @@ def main():
     
     if instance_type=='random':
         print("Generating Instance...")
-        C,data = utils.generateInstance(n_cities,map_size)
+        C,data = utils.generateInstance(number_of_cities,map_size)
     else:
         print("Reading instance from file:",instance_file,"...")
         C,data = utils.readInstance(instance_file)
         
-    print("PARAMETERS: \nCrossover type->",cx_type,
+    print("PARAMETERS: \nCrossover type->",crossover_type,
                   "; Mutation Probability->",mutation_probability,
-                  "; n(iterations)->",n_iters)
-    print("Population size->",pop_size)
+                  "; n(iterations)->",number_of_iterations)
+    print("Population size->",population_size)
     print("\nCreating initial population...\n")
     
-    population = evolution.createInitialPopulation(population_size,C,data,number_of_tours,ctype)
+    population = evolution.createInitialPopulation(population_size,C,data,number_of_tours,chromosome_type)
     
     fronts = evolution.evolve(number_of_iterations,population,C,selection_probability,
                               crossover_type,mutation_probability,chromosome_type)
@@ -74,6 +74,8 @@ def main():
                                                     mutation_probability,
                                                     instance_file[:-4]),
                                                         "wb") as wrfile:
+            front_dict = {"cx":crossover_type,"mu":mutation_probability,
+                                  "front":first_front,"all fronts":fronts}
             pickle.dump(front_dict,wrfile)
     return 0
         
