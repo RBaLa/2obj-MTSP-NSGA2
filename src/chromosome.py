@@ -1,5 +1,6 @@
 import numpy as np
 import utils
+import mtsp
 
 class Chromosome_1(object):
     def __init__(self):
@@ -48,8 +49,8 @@ def createChromosome(C,n_tours,ctype=1):
                     check = False
             if check == True:
                 X = utils.getTourMatrix(chromosome,ctype)
-                a = objectiveFunction1(C,X)
-                b = objectiveFunction2(C,X)
+                a = mtsp.objectiveFunction1(C,X)
+                b = mtsp.objectiveFunction2(C,X)
                 chromosome.function_vals = [a,b]
                 return chromosome
     if ctype==2:
@@ -57,7 +58,7 @@ def createChromosome(C,n_tours,ctype=1):
         chromosome.part_1 = rng.permutation(np.arange(1,n_cities))
         chromosome.part_2 = np.sort(rng.choice(np.arange(1,n_cities-1),
                                                n_tours-1,replace=False))
-        X = getTourMatrix(chromosome,ctype)
+        X = utils.getTourMatrix(chromosome,ctype)
         a = objectiveFunction1(C,X)
         b = objectiveFunction2(C,X)
         chromosome.function_vals = [a,b]
