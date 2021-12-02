@@ -47,7 +47,7 @@ def getTourMatrix(chromosome,ctype=1):
                 tour_matrix[i,city,0] = 1
     return tour_matrix
   
-  def euclideanDistance(p1, p2):
+def euclideanDistance(p1, p2):
     return ((p1[0]-p2[0])**2+(p1[1]-p2[1])**2)**0.5
   
 def generateInstance(n_cities,map_size):
@@ -108,7 +108,7 @@ def getInstanceFromUser():
             if try_count==10:
                 sys.exit(1)
             continue
-        if value=='y' or value=='' or (!value.isalpha() and value.isspace()):
+        if value=='y' or value=='' or (not(value.isalpha()) and value.isspace()):
             root = Tk()
             root.withdraw()
             root.attributes('-topmost', True)
@@ -118,7 +118,7 @@ def getInstanceFromUser():
                                                        filetypes=[("Text Files", "*.txt")])
             if len(instance_file)==0:
                 proceed_quit = str(input("No file selected. Proceed to random instance generation or quit?(y/q) [default:y]"))
-                if proceed_quit=='y' or proceed_quit=='' or (!proceed_quit.isalpha() and proceed_quit.isspace()):
+                if proceed_quit=='y' or proceed_quit=='' or (not(proceed_quit.isalpha()) and proceed_quit.isspace()):
                     instance_type = 'random'
                     instance_file = None
                     break
@@ -127,7 +127,7 @@ def getInstanceFromUser():
                 break
         elif value=='n':
             proceed_quit = str(input("No selected. Proceed to random instance generation or quit?(y/q) [default:y]"))
-            if proceed_quit=='y' or proceed_quit=='' or (!proceed_quit.isalpha() and proceed_quit.isspace()):
+            if proceed_quit=='y' or proceed_quit=='' or (not(proceed_quit.isalpha()) and proceed_quit.isspace()):
                 instance_type = 'random'
                 instance_file = None
                 break
