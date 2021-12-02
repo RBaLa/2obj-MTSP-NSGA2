@@ -4,6 +4,7 @@ import utils
 import functools
 import genops
 import nsga2
+import seed
 
 def createInitialPopulation(N,C,data,n_tours,ctype=1):
     population = []
@@ -16,7 +17,7 @@ def createInitialPopulation(N,C,data,n_tours,ctype=1):
     return population
   
   def tournamentSelection(population,tsub,selection_probability,ctype=1):
-    rng = np.random.default_rng(SEED)
+    rng = np.random.default_rng(seed.SEED)
     utils.updateSeed()
     parents = []
     probability_list = [selection_probability]
@@ -46,7 +47,7 @@ def fDistance(a,b):
 
 def tournamentSelection2(pop,tsub=2,ctype=1):
     population = copy.deepcopy(pop)
-    rng = np.random.default_rng(SEED)
+    rng = np.random.default_rng(seed.SEED)
     utils.updateSeed()
     parents = []
     farthest = None
@@ -66,7 +67,7 @@ def tournamentSelection2(pop,tsub=2,ctype=1):
 
 def createOffspringPopulation(population,dist_matrix,tsub=2,selection_prob=0.9,
                               cxtype='pmx',mu_prob=0.05,ctype=1):
-    rng = np.random.default_rng(SEED)
+    rng = np.random.default_rng(seed.SEED)
     utils.updateSeed()
     children = []
     child1 = None
