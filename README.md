@@ -8,7 +8,9 @@ Available crossover operators: Partially-mapped crossover (PMX), Cyclic crossove
 
 Implemented mutation operators: Insert mutation, Swap mutation, Invert mutation, and Scramble mutation. All four have an equal chance to be chosen if the child chromosome is selected for mutation.
 
-Available instances from TSPLIB: eil51, berlin52, eil76, and rat99
+Two objective functions  for the MTSP: minimizing total distance traveled and two separate options for the second, either minimizing difference between max and min tour length (MinMax SD-MTSP) or minimizing difference between the maximum time taken for a tour and average across all salesmen. For the latter option, a random speed between 40 and 90 km/h is chosen for each arc traversal.
+
+Available instances from TSPLIB: eil51, berlin52, eil76, and rat99.
 
 ### Instructions to run:
 1. Download entire repo
