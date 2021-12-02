@@ -1,3 +1,6 @@
+import numpy as np
+import utils
+
 class Chromosome_1(object):
     def __init__(self):
         self.tours = None
@@ -29,8 +32,9 @@ class Chromosome_2(object):
         return False
       
 def createChromosome(C,n_tours,ctype=1):
+    global SEED
     rng = np.random.default_rng(SEED)
-    updateSeed()
+    utils.updateSeed()
     n_cities = C.shape[0]
     if ctype==1:
         while True:
@@ -43,7 +47,7 @@ def createChromosome(C,n_tours,ctype=1):
                 if i not in chromosome.tours:
                     check = False
             if check == True:
-                X = getTourMatrix(chromosome,ctype)
+                X = utils.getTourMatrix(chromosome,ctype)
                 a = objectiveFunction1(C,X)
                 b = objectiveFunction2(C,X)
                 chromosome.function_vals = [a,b]
