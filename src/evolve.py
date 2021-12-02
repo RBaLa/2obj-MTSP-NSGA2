@@ -1,8 +1,15 @@
+import numpy as np
+import chromosome as chrom
+import utils
+import functools
+import genops
+import nsga2
+
 def createInitialPopulation(N,C,data,n_tours,ctype=1):
     population = []
     while len(population)<N:
-        individual = createChromosome(C,n_tours,ctype)
-        #individual = createChromosomeFromTspSolution(C,data,n_tours)
+        individual = chrom.createChromosome(C,n_tours,ctype)
+        #individual = chrom.createChromosomeFromTspSolution(C,data,n_tours)
         if individual not in population:
             population.append(individual)
         
@@ -10,7 +17,7 @@ def createInitialPopulation(N,C,data,n_tours,ctype=1):
   
   def tournamentSelection(population,tsub,selection_probability,ctype=1):
     rng = np.random.default_rng(SEED)
-    updateSeed()
+    utils.updateSeed()
     parents = []
     probability_list = [selection_probability]
     best = None
@@ -21,7 +28,7 @@ def createInitialPopulation(N,C,data,n_tours,ctype=1):
         tournament_bracket = rng.choice(population,tsub,replace=False).tolist()
         tournament_bracket = sorted(tournament_bracket,
                                     key=functools.cmp_to_key(
-                                        crowdedComparisonOperator))
+                                        nsga2.crowdedComparisonOperator))
         for i in range(tsub):
             best = tournament_bracket[tsub-1]
             if rng.choice([0,1],
@@ -35,19 +42,19 @@ def createInitialPopulation(N,C,data,n_tours,ctype=1):
 def fDistance(a,b):
     fval_a = a.function_vals
     fval_b = b.function_vals
-    return euclideanDistance(fval_a, fval_b)
+    return utils.euclideanDistance(fval_a, fval_b)
 
 def tournamentSelection2(pop,tsub=2,ctype=1):
     population = copy.deepcopy(pop)
     rng = np.random.default_rng(SEED)
-    updateSeed()
+    utils.updateSeed()
     parents = []
     farthest = None
     while len(parents)<len(population):
         tournament_bracket = rng.choice(population,tsub,replace=False).tolist()
         tournament_bracket = sorted(tournament_bracket,
                                     key=functools.cmp_to_key(
-                                        crowdedComparisonOperator))
+                                        nsga2.crowdedComparisonOperator))
         parents.append(tournament_bracket[0])
         d_list = [fDistance(ind,tournament_bracket[0]) for ind in population]
         sorted_ids = np.argsort(d_list)
@@ -60,7 +67,7 @@ def tournamentSelection2(pop,tsub=2,ctype=1):
 def createOffspringPopulation(population,dist_matrix,tsub=2,selection_prob=0.9,
                               cxtype='pmx',mu_prob=0.05,ctype=1):
     rng = np.random.default_rng(SEED)
-    updateSeed()
+    utils.updateSeed()
     children = []
     child1 = None
     child2 = None
@@ -70,42 +77,27 @@ def createOffspringPopulation(population,dist_matrix,tsub=2,selection_prob=0.9,
                     for i in range(len(parents)) if i%2==0]
     for pair in mating_pairs:
         if cxtype=='pmx':
-            child1,child2 = partiallyMappedCrossover(pair[0],pair[1],ctype)
+            child1,child2 = genops.partiallyMappedCrossover(pair[0],pair[1],ctype)
         elif cxtype=='cycx':
-            child1,child2 = cyclicCrossover(pair[0],pair[1],ctype)
+            child1,child2 = genops.cyclicCrossover(pair[0],pair[1],ctype)
         elif cxtype=='hx':
-            child1,child2 = heirarchicalCrossover(pair[0],pair[1],dist_matrix)
+            child1,child2 = genops.heirarchicalCrossover(pair[0],pair[1],dist_matrix)
         else:
-            child1,child2 = orderedCrossover(pair[0],pair[1],ctype)
+            child1,child2 = genops.orderedCrossover(pair[0],pair[1],ctype)
         
         if rng.choice([0,1],p=[mu_prob,1-mu_prob])==0:
-            child1 = mutate_child(child1,ctype)
+            child1 = genops.mutate_child(child1,ctype)
         if rng.choice([0,1],p=[mu_prob,1-mu_prob])==0:
-            child2 = mutate_child(child2,ctype)
-        X = getTourMatrix(child1,ctype)
-        a = objectiveFunction1(dist_matrix,X)
-        b = objectiveFunction2(dist_matrix,X)
+            child2 = genops.mutate_child(child2,ctype)
+        X = utils.getTourMatrix(child1,ctype)
+        a = mtsp.objectiveFunction1(dist_matrix,X)
+        b = mtsp.objectiveFunction2(dist_matrix,X)
         child1.function_vals = [a,b]
-        Y = getTourMatrix(child2,ctype)
-        a = objectiveFunction1(dist_matrix,Y)
-        b = objectiveFunction2(dist_matrix,Y)
+        Y = utils.getTourMatrix(child2,ctype)
+        a = mtsp.objectiveFunction1(dist_matrix,Y)
+        b = mtsp.objectiveFunction2(dist_matrix,Y)
         child2.function_vals = [a,b]
         
         children.append(child1)
         children.append(child2)
     return children
-  
-def mutate_child(child,ctype):
-    rng = np.random.default_rng(SEED)
-    updateSeed()
-    mutated = None
-    mu_type = rng.choice([0,1,2,3])
-    if mu_type==0:
-        mutated = insertMutation(child,ctype)
-    elif mu_type==1:
-        mutated = swapMutation(child,ctype)
-    elif mu_type==2:
-        mutated = invertMutation(child,ctype)
-    else:
-        mutated = scrambleMutation(child,ctype)
-    return mutated
