@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seed
+from tkinter import Tk,filedialog
+import os
 
 def updateSeed():
     large = 2147483647;
@@ -94,3 +96,46 @@ def readInstance(filename):
     plt.grid()
     plt.show()
     return distance_matrix,city_coordinates
+
+def getInstanceFromUser():
+    try_count = 0
+    while True:
+        try:
+            value = str(input("Read instance from file?(y/n) [default:y. If n is selected, random instance will be generated]:"))
+        except ValueError:
+            print("Error: something other than 'y' or 'n' entered. Try again.")
+            try_count+=1
+            if try_count==10:
+                sys.exit(1)
+            continue
+        if value=='y' or value=='' or (!value.isalpha() and value.isspace()):
+            root = Tk()
+            root.withdraw()
+            root.attributes('-topmost', True)
+            script_dir = os.path.dirname(__file__)
+            instance_dir = os.path.join(script_dir, "instances")
+            instance_file = filedialog.askopenfilename(initialdir=instance_dir, title="Select file",
+                                                       filetypes=[("Text Files", "*.txt")])
+            if len(instance_file)==0:
+                proceed_quit = str(input("No file selected. Proceed to random instance generation or quit?(y/q) [default:y]"))
+                if proceed_quit=='y' or proceed_quit=='' or (!proceed_quit.isalpha() and proceed_quit.isspace()):
+                    instance_type = 'random'
+                    instance_file = None
+                    break
+            else:
+                instance_type = 'from file'
+                break
+        elif value=='n':
+            proceed_quit = str(input("No selected. Proceed to random instance generation or quit?(y/q) [default:y]"))
+            if proceed_quit=='y' or proceed_quit=='' or (!proceed_quit.isalpha() and proceed_quit.isspace()):
+                instance_type = 'random'
+                instance_file = None
+                break
+        else:
+            print("Error: something other than 'y' or 'n' entered. Try again.")
+            try_count+=1
+            if try_count==10:
+                sys.exit(1)
+            continue
+    return instance_type,instance_file
+
