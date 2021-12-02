@@ -82,22 +82,22 @@ def evolve(n_iters,population,C,selection_probability,cx_type,mutation_probabili
     fronts = []
     print("   >>>Entering Main Loop:\n")
     for iter_count in tqdm.tqdm(range(n_iters)):
-        fronts = nondominatedSort(population,ctype)
+        fronts = nsga2.nondominatedSort(population,ctype)
         next_generation_P = []
         i = 0
         while True:
             if len(next_generation_P)+len(fronts[i])>=pop_size:
                 break
-            crowding_assigned_front = assignCrowdingDistance(fronts[i])
+            crowding_assigned_front = nsga2.assignCrowdingDistance(fronts[i])
             next_generation_P.extend(crowding_assigned_front)
             i += 1
         if len(next_generation_P)<pop_size:
             P_temp_length = len(next_generation_P)
-            extra_front = assignCrowdingDistance(fronts[i])
+            extra_front = nsga2.assignCrowdingDistance(fronts[i])
             if len(extra_front)>1:
                 extra_front = sorted(extra_front,
                                      key=functools.cmp_to_key(
-                                         crowdedComparisonOperator))
+                                         nsga2.crowdedComparisonOperator))
             next_generation_P.extend(extra_front[0:pop_size-P_temp_length])
         next_generation_Q = createOffspringPopulation(next_generation_P,C,
                                                       selection_probability,
