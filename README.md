@@ -12,6 +12,9 @@ Two objective functions  for the MTSP: minimizing total distance traveled and tw
 
 Available instances from TSPLIB: eil51, berlin52, eil76, and rat99.
 
+### Before Running:
+Ensure you have python modules tqdm and tkinter installed and you are running Python 3
+
 ### Instructions to run:
 1. Download code as zipped file.
 2. Unzip and open main.py in an editor (if you want to change parameters)
